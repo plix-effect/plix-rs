@@ -1,0 +1,51 @@
+{
+  "name": "@plix-effect/rs",
+  "version": "0.0.1",
+  "description": "A rapsberry-pi service based on PLIX",
+  "main": "_dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "front:start": "webpack --config ./frontend/webpack.config.js --mode development",
+    "front:build": "webpack --config ./frontend/webpack.config.js --mode production",
+    "back:build": "tsc --project backend/tsconfig.back.json",
+    "back:start": "concurrently \"tsc --project backend/tsconfig.back.json -w\" \"nodemon --watch  _dist --ignore _dist/web\"",
+    "both:start": "concurrently \\\"npm:front:start\\\" \\\"npm:back:start\\\""
+  },
+  "keywords": [
+    "Plix",
+    "RasberryPi",
+    "Lightshow"
+  ],
+  "author": "MYXOMOPX",
+  "license": "ISC",
+  "devDependencies": {
+    "connect-history-api-fallback": "^1.6.0",
+    "copy-webpack-plugin": "^7.0.0",
+    "css-loader": "^5.0.1",
+    "html-webpack-plugin": "^4.5.0",
+    "html-webpack-tags-plugin": "^2.0.17",
+    "http-proxy-middleware": "^1.0.6",
+    "koa-connect": "^2.1.0",
+    "mini-css-extract-plugin": "^1.3.3",
+    "node-sass": "^5.0.0",
+    "sass-loader": "^10.1.0",
+    "string-replace-loader": "^3.0.1",
+    "ts-loader": "^8.0.12",
+    "typescript": "^4.1.3",
+    "webpack": "^5.10.2",
+    "webpack-cli": "^4.2.0",
+    "webpack-plugin-serve": "^1.2.1",
+    "webpack-serve": "^3.2.0"
+  },
+  "dependencies": {
+    "@types/react-dom": "^17.0.0",
+    "concurrently": "^5.3.0",
+    "express": "^4.17.1",
+    "mp3tag.js": "^3.0.0",
+    "nodemon": "^2.0.6",
+    "pako": "^2.0.2",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-modal-promise": "^0.5.3"
+  }
+}
