@@ -16,9 +16,9 @@
       "es2015.iterable",
       "es2015.promise",
       "es2019"
-    ],
-    "compileOnSave": true
+    ]
   },
+  "compileOnSave": true,
   "exclude": [
     "node_modules",
     "./**/__test__"

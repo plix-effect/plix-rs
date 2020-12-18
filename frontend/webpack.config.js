@@ -46,7 +46,7 @@ module.exports = (env, argv) => {
                     test: /\.tsx?$/,
                     loader: 'ts-loader',
                     options: {
-                        configFile: "tsconfig.front.json"
+                        configFile: "tsconfig.json"
                     },
                     exclude: /node_modules/,
                 },
