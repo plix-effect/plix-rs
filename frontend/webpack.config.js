@@ -94,7 +94,16 @@ module.exports = (env, argv) => {
                 base: "/",
             }),
             new HtmlWebpackTagsPlugin({
-                tags: [], append: true
+                tags: [
+                    {
+                        type: "css",
+                        path: "/assets/css/Roboto.css"
+                    },
+                    {
+                        type: "css",
+                        path: "/assets/css/MaterialIcons.css"
+                    }
+                ], append: true
             }),
             new WebpackPluginServe({
                 "port": 8084,
