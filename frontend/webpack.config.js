@@ -13,10 +13,11 @@ const {createProxyMiddleware : proxy} = require('http-proxy-middleware');
 
 module.exports = (env, argv) => {
     const PRODUCTION = argv.mode === "production";
-    // const SW_ENABLED = env.sw === undefined ? true : env.sw;
+    let WSHost = PRODUCTION ? "null" : "localhost:8083";
+
 
     const REPLACEMENTS = [
-        // {search: '\\$WEBPACK_API_ADDRESS', replace:API_URL, flags: "g"},
+        {search: '\\$Webpack_WS_Host', replace:WSHost, flags: "g"},
         // {search: '\\$WEBPACK_ENABLE_SW', replace:String(SW_ENABLED), flags: "g"},
     ];
 
@@ -110,7 +111,9 @@ module.exports = (env, argv) => {
                 "host": "0.0.0.0",
                 "historyFallback": true,
                 "static": "_dist/web",
-                "ws": true,
+                "client": {
+                    "retry": true
+                },
                 middleware: (app, middleware, options) => {
                     app.use(convert(proxy('/service', { target: 'http://localhost:8083', secure: false, changeOrigin: true })));
                     app.use(convert(history()));

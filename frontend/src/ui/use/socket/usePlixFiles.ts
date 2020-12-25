@@ -1,16 +1,37 @@
 import {useWSClient} from "../useWSClient";
-import {useEffect, useState} from "react";
-import {ServerPacket} from "../../../../../typings/ServerPackets";
+import {useCallback, useEffect, useState} from "react";
+import {ServerAnswerRequestFilesPacket, ServerPacket} from "../../../../../typings/ServerPackets";
+import {generateNewPacketId} from "../../../utils/packet-utils";
+import {useGlobalState} from "../usaGlobalState";
 
+let awaitingAnswerPacketIds = [];
 
-export const usePlixFiles = () => {
+type usePlixFilesReturn = [string[], () => void]
+
+export const usePlixFiles = (): usePlixFilesReturn => {
     const wsClient = useWSClient();
-    const [files, setFiles] = useState<string[]>([])
+    const [files, setFiles] = useGlobalState<string[]>("plixFiles",[]);
+
+
+    const requestFiles = useCallback(() => {
+        const id = generateNewPacketId();
+        awaitingAnswerPacketIds.push(id);
+        wsClient.send({
+            _packetId: id,
+            _type: "requestFiles",
+        })
+    }, [wsClient])
 
     useEffect(() => {
         const listener = (packet: ServerPacket) => {
-            if (packet._type !== "filesChanged") return;
-            setFiles(packet.files);
+            if (packet._type === "filesChanged") {
+                setFiles(packet.files);
+            } else if (packet._type === "answer") {
+                if (!awaitingAnswerPacketIds.includes(packet._packetId)) return;
+                const filesPacket = packet as ServerAnswerRequestFilesPacket;
+                setFiles(filesPacket.files);
+                console.log("RECEIVED FILES",filesPacket.files);
+            }
         }
 
         wsClient.on("packet", listener)
@@ -20,5 +41,5 @@ export const usePlixFiles = () => {
         }
     })
 
-    return files;
+    return [files,requestFiles];
 }

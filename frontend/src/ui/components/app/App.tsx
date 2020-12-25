@@ -9,7 +9,7 @@ import {PlixDrawer} from "./PlixDrawer";
 import {UIRouter, UIView, pushStateLocationPlugin} from "@uirouter/react";
 import {routerStates} from "../../router/states";
 import {configRouter} from "../../router/configRouter";
-import {WebSocketContext} from "./WebSocketContext";
+import {WSConnectionComponent} from "./WSConnectionComponent";
 
 const THEME = THEMES["PINKY DARK"]
 
@@ -28,7 +28,7 @@ export const App: FC =  () => {
 
     return (
         <Suspense fallback="loading">
-            <WebSocketContext>
+            <WSConnectionComponent>
                 <UIRouter plugins={[pushStateLocationPlugin]} config={configRouter} states={routerStates}>
                     <meta name="theme-color" content={THEME.palette.primary.main} />
                     <meta name="apple-mobile-web-app-status-bar-style" content={THEME.palette.primary.main}/>
@@ -39,7 +39,7 @@ export const App: FC =  () => {
                         </DrawerContextProvider>
                     </ThemeProvider>
                 </UIRouter>
-            </WebSocketContext>
+            </WSConnectionComponent>
         </Suspense>
     )
 }

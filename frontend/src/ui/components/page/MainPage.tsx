@@ -1,4 +1,4 @@
-import React, {FC} from "react";
+import React, {FC, useEffect} from "react";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import {DefaultPageAppBar} from "../app/DefaultAppBar";
 import {Paper} from "@material-ui/core";
@@ -24,7 +24,11 @@ const useStyles = makeStyles(theme => ({
 
 export const MainPage: FC = () => {
     const classes = useStyles();
-    const files = usePlixFiles();
+    const [files,requestFiles] = usePlixFiles();
+
+    useEffect(() => {
+        requestFiles()
+    }, [])
 
     return (
         <div className={classes.root}>

@@ -16,6 +16,8 @@ interface RSServerOptions {
     plixFileDirectory?: string
 }
 
+const connectedClients: IWSClient[] = [];
+
 export const createRSServer = ({plixFileDirectory = path.join(__dirname, "/../", "plix")}: RSServerOptions) => {
     const plixFileManager = createPlixFileManager(plixFileDirectory);
     console.log(plixFileDirectory)
@@ -32,7 +34,10 @@ export const createRSServer = ({plixFileDirectory = path.join(__dirname, "/../",
 
     expressWsApp.ws("/api", (ws, req) => {
         const client = createWSClient(ws);
-
+        connectedClients.push(client);
+        client.on("close", () => {
+            connectedClients.splice(connectedClients.indexOf(client), 1)
+        });
         client.on("packet", packet => handlePacket(client, packet))
     });
 
@@ -40,6 +45,7 @@ export const createRSServer = ({plixFileDirectory = path.join(__dirname, "/../",
         if (packet._type === "requestFiles") {
             const fileList = await plixFileManager.getFileList();
             const answerPacket: ServerAnswerRequestFilesPacket = {
+                _type: "answer",
                 _packetId: packet._packetId,
                 files: fileList
             }
@@ -49,3 +55,4 @@ export const createRSServer = ({plixFileDirectory = path.join(__dirname, "/../",
 
     return expressWsApp;
 }
+

@@ -4,20 +4,22 @@ import {Playlist} from "./Playlist";
 type PlayingTrack = {
     type: "track",
     track: Track
-    duration: number
 }
 
 type PlayingPlaylist = {
     type: "playlist",
     playlist: Playlist,
-    currentTrack?: Track,
-    currentTrackDuration?: number
+    track?: Track,
 }
 
 export type PlayingObject = PlayingTrack | PlayingPlaylist
 
-export type PlayerStatus = {
-    time: number
+export type PlayerStatus = "play" | "pause" | "stop";
+
+export type PlayerState = {
+    currentTime?: number
+    duration?: number
     volume: number
+    status: PlayerStatus
     playingObject: PlayingObject
 }

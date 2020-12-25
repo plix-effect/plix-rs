@@ -6,6 +6,7 @@ import MPlayer from "mplayer";
 export class MPlayerService extends TypedEventEmitter<IMusicPlayerServiceEvents> implements IMusicPlayerService {
 
     private player: MPlayer;
+    private lastKnownTime: number = 0;
 
     constructor() {
         super();
@@ -21,7 +22,7 @@ export class MPlayerService extends TypedEventEmitter<IMusicPlayerServiceEvents>
     };
 
     async play() {
-
+        this.player
     };
     async pause() {
     }

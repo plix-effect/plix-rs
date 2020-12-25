@@ -1,3 +1,5 @@
+import {PlayerStatus} from "./player/PlayerState";
+
 export type ServerPacket =
     | ServerAnswerRequestFilesPacket
     | ServerAnswerBeginSendFilePacket
@@ -24,4 +26,9 @@ export type ServerAnswerBeginSendFilePacket = ServerAnswerPacket & {
 export type ServerFilesChangedPacket = {
     _type: "filesChanged"
     files: string[]
+}
+
+export type ServerPlayerStatusPacket = {
+    _type: "playerStatus",
+    status: PlayerStatus
 }
