@@ -5,15 +5,20 @@ import cors from "cors";
 import history from "connect-history-api-fallback";
 import path from "path";
 import WebSocket from "ws";
-import {createWSClient} from "./socket/WSClient";
+import {createWSClient, IWSClient} from "./socket/WSClient";
+import {cli} from "webpack";
+import {createPlixFileManager} from "./PlixFileManager";
+import {ServerAnswerRequestFilesPacket} from "../../typings/ServerPackets";
+import {ClientPacket} from "../../typings/ClientPackets";
 
 
 interface RSServerOptions {
     plixFileDirectory?: string
 }
 
-export const createRSServer = () => {
-
+export const createRSServer = ({plixFileDirectory = path.join(__dirname, "/../", "plix")}: RSServerOptions) => {
+    const plixFileManager = createPlixFileManager(plixFileDirectory);
+    console.log(plixFileDirectory)
     const expressApp = express();
     const expressWsApp = expressWs(expressApp).app;
     expressApp.use(bodyParser.json());
@@ -27,8 +32,20 @@ export const createRSServer = () => {
 
     expressWsApp.ws("/api", (ws, req) => {
         const client = createWSClient(ws);
+
+        client.on("packet", packet => handlePacket(client, packet))
     });
 
+    const handlePacket = async (ws: IWSClient, packet: ClientPacket) => {
+        if (packet._type === "requestFiles") {
+            const fileList = await plixFileManager.getFileList();
+            const answerPacket: ServerAnswerRequestFilesPacket = {
+                _packetId: packet._packetId,
+                files: fileList
+            }
+            ws.send(answerPacket);
+        }
+    }
 
     return expressWsApp;
 }

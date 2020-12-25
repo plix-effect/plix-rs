@@ -16,6 +16,9 @@
       "es2015.iterable",
       "es2015.promise",
       "es2019"
+    ],
+    "typeRoots": [
+      "../typings/**/*"
     ]
   },
   "compileOnSave": true,

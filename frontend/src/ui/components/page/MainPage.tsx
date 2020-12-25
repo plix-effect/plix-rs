@@ -2,6 +2,7 @@ import React, {FC} from "react";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import {DefaultPageAppBar} from "../app/DefaultAppBar";
 import {Paper} from "@material-ui/core";
+import {usePlixFiles} from "../../use/socket/usePlixFiles";
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -23,12 +24,14 @@ const useStyles = makeStyles(theme => ({
 
 export const MainPage: FC = () => {
     const classes = useStyles();
+    const files = usePlixFiles();
 
     return (
         <div className={classes.root}>
             <DefaultPageAppBar title={"PLIX RS"}/>
             <Paper  elevation={0} className={classes.paper}>
                 Hi there
+                {files.join(", ")}
             </Paper>
         </div>
     )

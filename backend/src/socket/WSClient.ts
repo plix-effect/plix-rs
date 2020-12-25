@@ -1,36 +1,63 @@
 import {IPublicTypedEventEmitter, ITypedEventEmitter, TypedEventEmitter} from "../utils/TypedEventEmitter";
 import WebSocket from "ws";
-import type {ClientPacket} from "../../../shared/ClientPackets";
 import {EventEmitter} from "events";
-import {ServerAnswerPacket, ServerNotifyPacket} from "../../../shared/ServerPackets";
+import {ClientPacket} from "../../../typings/ClientPackets";
+import {ServerPacket} from "../../../typings/ServerPackets";
 
-interface IWSClientEvents {
+export interface IWSClientEvents {
     close: () => void;
     packet: (packet: ClientPacket) => void;
     file: (data: Buffer) => void;
 }
 
-interface IWSClient extends ITypedEventEmitter<any>{
+export interface IWSClient extends ITypedEventEmitter<IWSClientEvents>{
     close();
-    send(packet: (ServerNotifyPacket|ServerAnswerPacket)): void;
+    send(packet: ServerPacket): void;
 }
 
 export const createWSClient = (ws: WebSocket): IWSClient => {
 
-    const wsClient = Object.create(new TypedEventEmitter());
-    const emitter = wsClient as IPublicTypedEventEmitter<IWSClientEvents>;
+    const obj = Object.create(new TypedEventEmitter());
+    const client = obj as IWSClient;
+    const emitter = obj as IPublicTypedEventEmitter<IWSClientEvents>;
 
     ws.on("message", (msg) => {
-        console.log(msg);
+        if (typeof msg === "string") {
+            handleStringMessage(msg)
+        }
     });
+
+    const handleStringMessage = (msg: string) => {
+        let obj;
+        try {
+            obj = JSON.parse(msg);
+        } catch (e) {
+            ws.send("Bad packet")
+            ws.close(1002);
+            console.warn("CLOSING because cant parse" )
+            return;
+        }
+        if (typeof obj !== "object" || !obj._type) {
+            ws.send("Bad packet");
+            ws.close(1002);
+            console.warn("CLOSING because bad packet", obj);
+            return;
+        }
+        emitter.emit("packet", obj)
+    }
 
     ws.on("close", () => {
         emitter.emit("close");
     })
 
-    wsClient.close = () => {
-        ws.close();
+    client.close = () => {
+        ws.close(1000);
     }
 
-    return null as any;
+    client.send = (packet) => {
+        const str = JSON.stringify(packet);
+        ws.send(str);
+    }
+
+    return client;
 }

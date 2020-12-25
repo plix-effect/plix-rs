@@ -1,6 +1,6 @@
 import {createRSServer} from "./RSServer";
 
-const app = createRSServer()
+const app = createRSServer({})
 const port = 8083
 
 // app.get('/', (req, res) => {

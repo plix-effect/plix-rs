@@ -110,6 +110,7 @@ module.exports = (env, argv) => {
                 "host": "0.0.0.0",
                 "historyFallback": true,
                 "static": "_dist/web",
+                "ws": true,
                 middleware: (app, middleware, options) => {
                     app.use(convert(proxy('/service', { target: 'http://localhost:8083', secure: false, changeOrigin: true })));
                     app.use(convert(history()));
