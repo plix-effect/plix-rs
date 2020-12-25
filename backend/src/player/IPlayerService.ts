@@ -2,8 +2,8 @@ import {ITypedEventEmitter} from "../utils/TypedEventEmitter";
 
 export type IMusicPlayerServiceState = {
     time?: number,
-    file?: number,
-    status?: "play" | "pause" | "stop" | null
+    file?: string,
+    status?: "play" | "pause" | "stop" | "loading" | null
     volume?: number
 }
 
@@ -16,12 +16,12 @@ export type IMusicPlayerServiceEvents = {
     status: (status: any) => void
 }
 
-export interface IMusicPlayerService extends ITypedEventEmitter<IMusicPlayerServiceEvents> {
+export interface IPlayerService extends ITypedEventEmitter<IMusicPlayerServiceEvents> {
 
     startFile(file: string): Promise<void>;
     play(): Promise<void>;
     pause(): Promise<void>;
-    resume(): Promise<void>;
+    stop(): Promise<void>;
     seek(time: number): Promise<void>;
     setVolume(vol: number): Promise<void>;
     getState(): IMusicPlayerServiceState
