@@ -1,4 +1,4 @@
-import {PlayerStatus} from "./player/PlayerState";
+import {PlayerStatus} from "./player/PlixPlayerState";
 
 export type ServerPacket =
     | ServerAnswerRequestFilesPacket

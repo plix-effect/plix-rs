@@ -14,12 +14,12 @@ type PlayingPlaylist = {
 
 export type PlayingObject = PlayingTrack | PlayingPlaylist
 
-export type PlayerStatus = "play" | "pause" | "stop";
+export type PlayerStatus = "play" | "pause" | "stop" | "loading" | null;
 
-export type PlayerState = {
+export type PlixPlayerState = {
     currentTime?: number
     duration?: number
-    volume: number
-    status: PlayerStatus
-    playingObject: PlayingObject
+    volume?: number
+    status?: PlayerStatus
+    playingObject?: PlayingObject
 }

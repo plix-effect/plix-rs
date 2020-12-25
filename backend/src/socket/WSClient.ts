@@ -3,6 +3,7 @@ import WebSocket from "ws";
 import {EventEmitter} from "events";
 import {ClientPacket} from "../../../typings/ClientPackets";
 import {ServerPacket} from "../../../typings/ServerPackets";
+import {cli} from "webpack";
 
 export interface IWSClientEvents {
     close: () => void;

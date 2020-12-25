@@ -9,14 +9,10 @@ export type IMusicPlayerServiceState = {
 
 export type IMusicPlayerServiceEvents = {
     time: (time: number) => void
-    start: () => void
-    play: () => void
-    pause: () => void
-    stop: () => void
-    status: (status: any) => void
+    state: (state: IMusicPlayerServiceState) => void
 }
 
-export interface IPlayerService extends ITypedEventEmitter<IMusicPlayerServiceEvents> {
+export interface IMusicPlayerService extends ITypedEventEmitter<IMusicPlayerServiceEvents> {
 
     startFile(file: string): Promise<void>;
     play(): Promise<void>;

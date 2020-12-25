@@ -10,6 +10,7 @@ import {cli} from "webpack";
 import {createPlixFileManager} from "./PlixFileManager";
 import {ServerAnswerRequestFilesPacket} from "../../typings/ServerPackets";
 import {ClientPacket} from "../../typings/ClientPackets";
+import {MPlayerService} from "./music/MPlayerService";
 
 
 interface RSServerOptions {
@@ -20,11 +21,12 @@ const connectedClients: IWSClient[] = [];
 
 export const createRSServer = ({plixFileDirectory = path.join(__dirname, "/../", "plix")}: RSServerOptions) => {
     const plixFileManager = createPlixFileManager(plixFileDirectory);
-    console.log(plixFileDirectory)
     const expressApp = express();
     const expressWsApp = expressWs(expressApp).app;
     expressApp.use(bodyParser.json());
     expressApp.use(cors());
+
+
 
     expressApp.use(history({
         verbose: true
@@ -50,6 +52,10 @@ export const createRSServer = ({plixFileDirectory = path.join(__dirname, "/../",
                 files: fileList
             }
             ws.send(answerPacket);
+        } else if (packet._type === "selectPlix") {
+            const file = packet.fileName;
+            const fullFilePath = path.join(plixFileDirectory, file);
+            // playerService.startFile(fullFilePath);
         }
     }
 
