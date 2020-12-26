@@ -8,7 +8,7 @@ const checkExists = util.promisify(fs.exists);
 const mkdir = util.promisify(fs.mkdir);
 const readFile = util.promisify(fs.readFile);
 
-export const createPlixFileManager = (baseDir: string) => {
+export const createPlixFileManager = (baseDir: string = path.join(__dirname, "/../", "plix")) => {
 
     checkExists(baseDir).then((v) => {
         if (!v) mkdir(baseDir);
@@ -45,3 +45,5 @@ export const createPlixFileManager = (baseDir: string) => {
         getFullFilePath
     }
 }
+
+export type PlixFileManager = ReturnType<typeof createPlixFileManager>

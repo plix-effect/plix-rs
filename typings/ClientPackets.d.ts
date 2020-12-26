@@ -4,7 +4,10 @@ export type ClientPacket =
     | ClientBeginSendFilePacket
     | ClientRequestFilesPacket
     | ClientSelectPlixPacket
-    ;
+    | ClientRequestPlayerStatePacket
+    | ClientChangePlayStatusPacket
+    | ClientPlayerSeekPacket
+;
 
 
 export type ClientPacketWithId = {

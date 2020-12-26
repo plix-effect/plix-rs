@@ -27,7 +27,7 @@ export class MPlayerService extends TypedEventEmitter<IMusicPlayerServiceEvents>
         return new Promise<void>((r) => {
             player.once("start", () => {
                 r();
-                this.emit("state", this.getState());
+                this.emitState();
             });
             player.on("time", (time) => {
                 this.lastKnownTime = time;
@@ -40,22 +40,42 @@ export class MPlayerService extends TypedEventEmitter<IMusicPlayerServiceEvents>
     async play() {
         this.player.play();
         this.lastKnownStatus = "play";
-        this.emit("state", this.getState());
+        return new Promise<void>((r) => {
+            this.player.once("status", () => {
+                r();
+                this.emitState();
+            })
+        })
     };
     async pause() {
         this.player.pause();
         this.lastKnownStatus = "pause";
-        this.emit("state", this.getState());
+        return new Promise<void>((r) => {
+            this.player.once("status", () => {
+                r();
+                this.emitState();
+            })
+        })
     }
     async stop() {
         this.player.stop();
         this.lastKnownStatus = "stop";
-        this.emit("state", this.getState());
+        return new Promise<void>((r) => {
+            this.player.once("status", () => {
+                r();
+                this.emitState();
+            })
+        })
     };
     async seek(time: number) {
         this.player.seek(time);
-        this.lastKnownTime = time;
-        this.emit("state", this.getState());
+        return new Promise<void>((r) => {
+            this.player.once("time", (t) => {
+                this.lastKnownTime = time;
+                r();
+                this.emitState();
+            })
+        })
     };
     async setVolume(vol: number) {
         this.player.volume(vol);
@@ -66,7 +86,7 @@ export class MPlayerService extends TypedEventEmitter<IMusicPlayerServiceEvents>
             this.player.mute();
             this.muted = false;
         }
-        this.emit("state", this.getState());
+        this.emitState();
     };
 
     getState(): IMusicPlayerServiceState {
@@ -76,6 +96,10 @@ export class MPlayerService extends TypedEventEmitter<IMusicPlayerServiceEvents>
             time: this.lastKnownTime,
             volume: this.lastKnownVolume
         }
+    }
+
+    private emitState() {
+        this.emit("state", this.getState());
     }
 
 }

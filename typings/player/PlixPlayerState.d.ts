@@ -17,7 +17,8 @@ export type PlayingObject = PlayingTrack | PlayingPlaylist
 export type PlayerStatus = "play" | "pause" | "stop" | "loading" | null;
 
 export type PlixPlayerState = {
-    currentTime?: number
+    playFromTimestamp?: number
+    pauseTime?: number
     duration?: number
     volume?: number
     status?: PlayerStatus

@@ -1,11 +1,16 @@
 // import {createRSServer} from "./RSServer";
+// import {createPlixFileManager} from "./PlixFileManager";
+// import {AdafruitService} from "./plix/adafruit";
+// import {PlixPlayer} from "./plix/plix-player/PlixPlayer";
 //
-// const app = createRSServer({})
 // const port = 8083
 //
-// // app.get('/', (req, res) => {
-// //     res.send('Hello World!124')
-// // })
+// const plixFileManager = createPlixFileManager();
+// const adafruitService = new AdafruitService({leds: 10});
+// const plixPlayer = new PlixPlayer(plixFileManager, adafruitService);
+//
+//
+// const app = createRSServer({plixPlayer, plixFileManager})
 //
 // app.listen(port, () => {
 //     console.log(`Example app listening at http://localhost:${port}`)
@@ -18,16 +23,16 @@ import {PlixPlayer} from "./plix/plix-player/PlixPlayer";
 import {createPlixFileManager} from "./PlixFileManager";
 import {AdafruitService} from "./plix/adafruit";
 import path from "path";
+import {NodeMPlayerService} from "./music/NodeMPlayerService";
 
-const fileManager = createPlixFileManager(path.join(__dirname, "/../", "plix"));
+const plixFileManager = createPlixFileManager();
 const adafruitService = new AdafruitService({leds: 10});
-
-const player = new PlixPlayer(fileManager, adafruitService);
+const plixPlayer = new PlixPlayer(plixFileManager, adafruitService, new NodeMPlayerService());
 
 const doTest = async () => {
-    await player.selectTrack("1.mp3")
-    player.start();
-    player.setVolume(0);
+    await plixPlayer.selectTrack("1.mp3")
+    plixPlayer.start();
+    plixPlayer.setVolume(0);
 }
 
 doTest();

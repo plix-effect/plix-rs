@@ -1,15 +1,13 @@
-import {MPlayerService} from "../../music/MPlayerService";
 import {PlixPlayerState} from "../../../../typings/player/PlixPlayerState";
 import {AbstractAdafruitService} from "../adafruit/AbstractAdafruitService";
-import {AdafruitService} from "../adafruit"
 import parseRender from "@plix-effect/core/dist/parser";
 import * as effectConstructorMap from "@plix-effect/core/effects";
 import * as filterConstructorMap from "@plix-effect/core/filters";
 import {createPlixFileManager} from "../../PlixFileManager";
 import {TypedEventEmitter} from "../../utils/TypedEventEmitter";
-import {BLACK, toNumber, toRgba} from "@plix-effect/core/color";
+import {BLACK, toNumber} from "@plix-effect/core/color";
 import {Simulate} from "react-dom/test-utils";
-import loadedData = Simulate.loadedData;
+import {IMusicPlayerService} from "../../music/IMusicPlayerService";
 
 export type PlixPlayerEvents = {
     state: (state: PlixPlayerState) => void;
@@ -19,24 +17,30 @@ const RENDER_INTERVAL_MS = 20; //ms
 
 export class PlixPlayer extends TypedEventEmitter<PlixPlayerEvents> {
 
-    private mPlayer: MPlayerService = new MPlayerService();
+    private musicPlayer: IMusicPlayerService;
     private adafruitService: AbstractAdafruitService;
     private plixFileManager: ReturnType<typeof createPlixFileManager>;
     private state: PlixPlayerState = {};
     private loadedRender?: object;
     private parsedRenderResult?: ReturnType<typeof parseRender>;
-    private playingFromTimestamp: number = 0; // in ms
+    private playFromTimestamp: number = 0; // in ms
     private pauseTime: number = 0; // in ms
-    constructor(plixFileManager: ReturnType<typeof createPlixFileManager>, adafruitService: AbstractAdafruitService) {
+
+    constructor(plixFileManager: ReturnType<typeof createPlixFileManager>, adafruitService: AbstractAdafruitService, musicPlayer: IMusicPlayerService) {
         super();
         this.plixFileManager = plixFileManager;
         this.adafruitService = adafruitService;
+        this.musicPlayer = musicPlayer;
+    }
+
+    public getState(): PlixPlayerState {
+        return {...this.state};
     }
 
     public async selectTrack(file: string) {
         // ToDo parse
         this.state = {
-            volume: this.mPlayer.getState().volume,
+            volume: this.musicPlayer.getState().volume,
         }
         this.state.status = "loading"
         this.emit("state", this.state);
@@ -47,7 +51,7 @@ export class PlixPlayer extends TypedEventEmitter<PlixPlayerEvents> {
         }
         this.state = {
             status: "stop",
-            volume: this.mPlayer.getState().volume,
+            volume: this.musicPlayer.getState().volume,
             playingObject: {
                 type: "track",
                 track: {
@@ -55,7 +59,7 @@ export class PlixPlayer extends TypedEventEmitter<PlixPlayerEvents> {
                     name: file
                 }
             },
-            currentTime: 0,
+            playFromTimestamp: undefined,
             duration: this.currentDuration
         }
         this.emit("state", this.state);
@@ -63,54 +67,61 @@ export class PlixPlayer extends TypedEventEmitter<PlixPlayerEvents> {
     }
 
     public async setVolume(vol: number) {
-        return this.mPlayer.setVolume(vol)
+        return this.musicPlayer.setVolume(vol)
     }
 
     public async start() {
+        if (!(["pause", "stop"] as any[]).includes(this.state.status)) return
         if (!this.parsedRenderResult) return;
         const playinObj = this.state.playingObject;
         if (playinObj?.type !== "track") return;
         const fileName = playinObj.track.file;
         if (this.isCurrentFileMP3) {
-            if (this.mPlayer.getState().file !== fileName) {
+            if (this.musicPlayer.getState().file !== fileName) {
                 console.log("BLA")
-                await this.mPlayer.startFile(this.plixFileManager.getFullFilePath(fileName));
+                await this.musicPlayer.startFile(this.plixFileManager.getFullFilePath(fileName));
             }
         }
-        this.playingFromTimestamp = process.uptime()*1000 - this.pauseTime;
         if (this.isCurrentFileMP3) {
-            this.mPlayer.seek(this.playingFromTimestamp/1000)
+            await this.musicPlayer.play();
+            await this.musicPlayer.seek(this.pauseTime/1000);
         }
-        this.state = {...this.state, status: "play", currentTime: this.pauseTime};
+        this.playFromTimestamp = process.uptime()*1000 - this.pauseTime;
+        this.pauseTime = 0;
+        this.state = {...this.state, status: "play", playFromTimestamp: this.playFromTimestamp, pauseTime: undefined};
         this.emit("state", this.state);
         this.doTick();
     }
 
     public async pause() {
-        if (this.state !== "play") return;
-        this.pauseTime = process.uptime()*1000 - this.playingFromTimestamp;
-        this.state = {...this.state, status: "pause", currentTime: this.pauseTime};
+        if (this.state.status !== "play") return;
+        this.pauseTime = this.currentTime;
+        this.state = {...this.state, status: "pause", pauseTime: this.pauseTime};
+        if (this.isCurrentFileMP3) {
+            this.musicPlayer.pause();
+        }
         this.emit("state", this.state);
     }
 
     public async stop() {
         this.state = {...this.state, status: "stop"};
+        this.pauseTime = 0;
         if (this.isCurrentFileMP3) {
-            this.mPlayer.stop();
+            this.musicPlayer.stop();
         }
         this.emit("state", this.state);
     }
 
     public async seek(timeMs: number) {
         if (this.state.status === "play") {
-            this.playingFromTimestamp -= timeMs;
-            this.state = {...this.state, currentTime: timeMs};
+            this.playFromTimestamp -= timeMs;
+            this.state = {...this.state, playFromTimestamp: this.playFromTimestamp};
         } else {
             this.pauseTime = timeMs;
-            this.state = {...this.state, currentTime: timeMs, status: "pause"};
+            this.state = {...this.state, playFromTimestamp: this.playFromTimestamp, pauseTime: this.pauseTime, status: "pause"};
         }
         if (this.isCurrentFileMP3) {
-            this.mPlayer.seek(timeMs/1000);
+            this.musicPlayer.seek(timeMs/1000);
         }
         this.emit("state", this.state);
     }
@@ -118,7 +129,7 @@ export class PlixPlayer extends TypedEventEmitter<PlixPlayerEvents> {
     private tickProcessId?: ReturnType<typeof setTimeout>;
     private doTick = () => {
         if (this.state.status != "play") return;
-        const dif = process.uptime()*1000 - this.playingFromTimestamp;
+        const dif = process.uptime()*1000 - this.playFromTimestamp;
         if (dif >= this.currentDuration) {
             // TODo if playlist - go next;
             this.stop();
@@ -129,7 +140,7 @@ export class PlixPlayer extends TypedEventEmitter<PlixPlayerEvents> {
     }
 
     private render() {
-        const dif = process.uptime()*1000 - this.playingFromTimestamp;
+        const dif = this.currentTime;
         const effect = this.parsedRenderResult?.effect;
         if (!effect) return;
         const lineMod = effect(dif, this.currentDuration, 0);
@@ -151,6 +162,7 @@ export class PlixPlayer extends TypedEventEmitter<PlixPlayerEvents> {
         this.parsedRenderResult = parseRender(data["render"], data["effects"], data["filters"], effectConstructorMap, filterConstructorMap, data["profiles"], profileName);
     }
 
+
     private get isCurrentFileMP3() {
         const playinObj = this.state.playingObject;
         if (playinObj?.type !== "track") return false;
@@ -160,5 +172,9 @@ export class PlixPlayer extends TypedEventEmitter<PlixPlayerEvents> {
 
     private get currentDuration(): number {
         return this.loadedRender ? this.loadedRender["editor"]["duration"] : -1;
+    }
+
+    private get currentTime(): number {
+        return process.uptime()*1000 - this.playFromTimestamp;
     }
 }
