@@ -3,7 +3,7 @@ import {
     ClientBeginSendFilePacket,
     ClientPacket,
     ClientRequestFilesPacket,
-    ClientRequestPlayerStatePacket
+    ClientRequestPlayerStatePacket, ClientRequestSyncTimePacket
 } from "./ClientPackets";
 
 export type ServerPacket =
@@ -12,6 +12,7 @@ export type ServerPacket =
     | ServerFilesChangedPacket
     | ServerPlayerStatePacket
     | ServerAnswerRequestPlayerStatePacket
+    | ServerAnswerRequestSyncTimePacket
 ;
 
 
@@ -44,4 +45,8 @@ export type ServerFilesChangedPacket = {
 export type ServerPlayerStatePacket = {
     _type: "playerState",
     state: PlixPlayerState
+}
+
+export type ServerAnswerRequestSyncTimePacket = ServerAnswerPacket<ClientRequestSyncTimePacket> & {
+    time: number
 }

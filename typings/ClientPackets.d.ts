@@ -7,6 +7,7 @@ export type ClientPacket =
     | ClientRequestPlayerStatePacket
     | ClientChangePlayStatusPacket
     | ClientPlayerSeekPacket
+    | ClientRequestSyncTimePacket
 ;
 
 
@@ -41,4 +42,8 @@ export type ClientChangePlayStatusPacket = ClientPacketWithId & {
 export type ClientPlayerSeekPacket = ClientPacketWithId & {
     _type: "playerSeek",
     time: number, // ms
+}
+
+export type ClientRequestSyncTimePacket = ClientPacketWithId & {
+    _type: "syncTime"
 }

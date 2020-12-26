@@ -85,6 +85,13 @@ export const createRSServer = ({plixFileManager, plixPlayer}: RSServerOptions) =
                 allow: false,
                 reason: "Not realisation for sending file yet"
             })
+        } else if (packet._type === "syncTime") {
+            ws.send({
+                _type: "answer",
+                _packetId: packet._packetId,
+                _clientPacketType: packet._type,
+                time: process.uptime()*1000
+            })
         }
     }
 
