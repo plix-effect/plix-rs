@@ -1,4 +1,5 @@
 import {PlayerStatus} from "./player/PlixPlayerState";
+import {ClientPacket} from "./ClientPackets";
 
 export type ServerPacket =
     | ServerAnswerRequestFilesPacket
@@ -9,6 +10,7 @@ export type ServerPacket =
 
 export type ServerAnswerPacket = {
     _type: "answer",
+    _clientPacketType: ClientPacket["_type"],
     _packetId: string,
     _error?: string
 }

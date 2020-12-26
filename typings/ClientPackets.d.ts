@@ -1,3 +1,5 @@
+import {PlayerStatus} from "./player/PlixPlayerState";
+
 export type ClientPacket =
     | ClientBeginSendFilePacket
     | ClientRequestFilesPacket
@@ -22,4 +24,18 @@ export type ClientRequestFilesPacket = ClientPacketWithId & {
 export type ClientSelectPlixPacket = ClientPacketWithId & {
     _type: "selectPlix",
     fileName: string
+}
+
+export type ClientRequestPlayerStatePacket = ClientPacketWithId & {
+    _type: "requestPlayerState",
+}
+
+export type ClientChangePlayStatusPacket = ClientPacketWithId & {
+    _type: "changePlayStatus",
+    status: "play" | "pause" | "stop",
+}
+
+export type ClientPlayerSeekPacket = ClientPacketWithId & {
+    _type: "playerSeek",
+    time: number, // ms
 }

@@ -1,4 +1,4 @@
-import {ClientPacket} from "../../../typings/ClientPackets";
+import {ClientPacket, ClientPacketWithId} from "../../../typings/ClientPackets";
 import {ServerPacket} from "../../../typings/ServerPackets";
 import {IPublicTypedEventEmitter, ITypedEventEmitter} from "../utils/TypedEventEmitter";
 import {TypedEventEmitter} from "../../../backend/src/utils/TypedEventEmitter";
@@ -13,6 +13,7 @@ export interface IWSClientEvents {
 export interface IWSClient extends ITypedEventEmitter<IWSClientEvents>{
     close();
     send(packet: ClientPacket): void;
+    sendRequestPacket(packet: (ClientPacket & ClientPacketWithId)): Promise<ServerPacket>;
     status: WebSocket["readyState"];
     ready: boolean
 }
@@ -52,6 +53,7 @@ export const createWSClient = async (address: string): Promise<IWSClient> => {
         emitter.emit("packet", obj)
     }
 
+
     ws.onclose = (ev) => {
         emitter.emit("close", ev.code, ev.reason)
     }
@@ -63,6 +65,23 @@ export const createWSClient = async (address: string): Promise<IWSClient> => {
     client.send = (packet) => {
         const str = JSON.stringify(packet);
         ws.send(str);
+    }
+    client.sendRequestPacket = async (packet) => {
+        const str = JSON.stringify(packet);
+        ws.send(str);
+        return new Promise((r,j) => {
+            const listener = (serverPacket: ServerPacket) => {
+                if (serverPacket._type !== "answer") return;
+                if (serverPacket._packetId == null || serverPacket._packetId != packet._packetId) return;
+                if (serverPacket._error) {
+                    j(serverPacket._error)
+                } else {
+                    r(serverPacket)
+                }
+                client.off("packet", listener);
+            }
+            client.on("packet", listener)
+        })
     }
 
     Object.defineProperty(client, "status", {
