@@ -1,4 +1,4 @@
-import {MainPage} from "../components/page/MainPage";
+import {MainPage} from "../components/page/main/MainPage";
 
 export const routerStates = [
     {

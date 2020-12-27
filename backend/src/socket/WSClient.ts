@@ -1,9 +1,8 @@
 import {IPublicTypedEventEmitter, ITypedEventEmitter, TypedEventEmitter} from "../utils/TypedEventEmitter";
 import WebSocket from "ws";
 import {EventEmitter} from "events";
-import {ClientPacket} from "../../../typings/ClientPackets";
-import {ServerPacket} from "../../../typings/ServerPackets";
 import {cli} from "webpack";
+import {ClientPacket, EventPacket, EventPacketMap, RequestPacketMap, ServerAnswerPacket} from "../../../typings/Packets";
 
 export interface IWSClientEvents {
     close: () => void;
@@ -13,7 +12,7 @@ export interface IWSClientEvents {
 
 export interface IWSClient extends ITypedEventEmitter<IWSClientEvents>{
     close();
-    send(packet: ServerPacket): void;
+    send(packet: EventPacket | ServerAnswerPacket): void;
 }
 
 export const createWSClient = (ws: WebSocket): IWSClient => {

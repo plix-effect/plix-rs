@@ -8,10 +8,15 @@ import WebSocket from "ws";
 import {createWSClient, IWSClient} from "./socket/WSClient";
 import {cli} from "webpack";
 import {createPlixFileManager, PlixFileManager} from "./PlixFileManager";
-import {ServerAnswerRequestFilesPacket, ServerPacket} from "../../typings/ServerPackets";
-import {ClientPacket} from "../../typings/ClientPackets";
 import {MPlayerService} from "./music/MPlayerService";
 import {PlixPlayer} from "./plix/plix-player/PlixPlayer";
+import {
+    ClientPacket,
+    EventPacket,
+    PacketAnswer,
+    RequestPacketMap,
+    ServerAnswerPacket
+} from "../../typings/Packets";
 
 
 interface RSServerOptions {
@@ -39,59 +44,68 @@ export const createRSServer = ({plixFileManager, plixPlayer}: RSServerOptions) =
         client.on("close", () => {
             connectedClients.splice(connectedClients.indexOf(client), 1)
         });
-        client.on("packet", packet => handlePacket(client, packet))
+        client.on("packet", async packet => {
+            const answer = await handlePacket(client, packet);
+            if (answer == null) return;
+            client.send(answer);
+        })
     });
 
-    const broadcastPacket = (packet: ServerPacket) => {
+    const broadcastPacket = (packet: EventPacket) => {
         connectedClients.forEach(client => {
             client.send(packet);
         })
     }
 
-    const handlePacket = async (ws: IWSClient, packet: ClientPacket) => {
+    const handlePacket = async (ws: IWSClient, packet: ClientPacket): Promise<ServerAnswerPacket> => {
         if (packet._type === "requestFiles") {
             const fileList = await plixFileManager.getFileList();
-            const answerPacket: ServerAnswerRequestFilesPacket = {
+            return {
                 _type: "answer",
                 _clientPacketType: "requestFiles",
                 _packetId: packet._packetId,
                 files: fileList
             }
-            ws.send(answerPacket);
-        } else if (packet._type === "selectPlix") {
-            const file = packet.fileName;
+        }
+        else if (packet._type === "selectPlix") {
+            const file = packet.file;
             plixPlayer.selectTrack(file);
+            return null;
         } else if (packet._type === "changePlayStatus") {
             const status = packet.status;
             if (status === "play") plixPlayer.start();
             else if (status === "pause") plixPlayer.pause();
             else if (status === "stop") plixPlayer.stop();
+            return null;
         } else if (packet._type === "playerSeek") {
             const time = packet.time;
             plixPlayer.seek(time);
+            return null;
         } else if (packet._type === "requestPlayerState") {
             const state = plixPlayer.getState();
-            ws.send({
+            return{
                 _type: "answer",
                 _clientPacketType: packet._type,
                 _packetId: packet._packetId,
                 state: state
-            })
+            }
         } else if (packet._type === "beginSendFile") {
-            ws.send({
+            return{
                 _type: "answer",
                 _clientPacketType: packet._type,
                 _packetId: packet._packetId,
                 allow: false,
                 reason: "Not realisation for sending file yet"
-            })
+            }
         } else if (packet._type === "syncTime") {
-            ws.send({
+            return {
                 _type: "answer",
                 _packetId: packet._packetId,
                 _clientPacketType: packet._type,
                 time: process.uptime()*1000
-            })
+            }
+        } else {
+            return null
         }
     }
 

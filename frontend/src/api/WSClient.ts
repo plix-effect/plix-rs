@@ -1,19 +1,27 @@
-import {ClientPacket, ClientPacketWithId} from "../../../typings/ClientPackets";
-import {ServerPacket} from "../../../typings/ServerPackets";
 import {IPublicTypedEventEmitter, ITypedEventEmitter} from "../utils/TypedEventEmitter";
 import {TypedEventEmitter} from "../../../backend/src/utils/TypedEventEmitter";
 import {cli} from "webpack";
+import {generateNewPacketId} from "../utils/packet-utils";
+import {
+    ClientPacket,
+    ClientPacketMap,
+    EventPacket,
+    PacketAnswer,
+    ServerAnswerPacket,
+    ServerAnswerPacketMap
+} from "../../../typings/Packets";
 
 export interface IWSClientEvents {
     close: (code: number, reason: string) => void;
-    packet: (packet: ServerPacket) => void;
+    packet: (packet: EventPacket) => void;
+    answerPacket: (packet: ServerAnswerPacket) => void;
     open: () => void;
 }
 
 export interface IWSClient extends ITypedEventEmitter<IWSClientEvents>{
     close();
-    send(packet: ClientPacket): void;
-    sendRequestPacket(packet: (ClientPacket & ClientPacketWithId)): Promise<ServerPacket>;
+    send<T extends keyof ClientPacketMap>(type: T, packet: Omit<ClientPacket<T>, "_type" | "_packetId">): void;
+    sendRequestPacket<T extends keyof ClientPacketMap>(type: T, packet: Omit<ClientPacket<T>, "_type" | "_packetId">): Promise<ServerAnswerPacketMap[T]>;
     status: WebSocket["readyState"];
     ready: boolean
 }
@@ -50,7 +58,11 @@ export const createWSClient = async (address: string): Promise<IWSClient> => {
             return;
         }
         console.log("PACKET",obj)
-        emitter.emit("packet", obj)
+        if (obj._type === "answer") {
+            emitter.emit("answerPacket", obj);
+        } else {
+            emitter.emit("packet", obj);
+        }
     }
 
 
@@ -62,25 +74,31 @@ export const createWSClient = async (address: string): Promise<IWSClient> => {
         ws.close(1000);
     }
 
-    client.send = (packet) => {
+    client.send = (type, pp) => {
+        const id = generateNewPacketId();
+        const packet = {...pp, _packetId: id, _type: type}
         const str = JSON.stringify(packet);
         ws.send(str);
     }
-    client.sendRequestPacket = async (packet) => {
+
+    client.sendRequestPacket = async (type, pp) => {
+        const id = generateNewPacketId();
+        const packet = {...pp, _packetId: id, _type: type}
         const str = JSON.stringify(packet);
         ws.send(str);
         return new Promise((r,j) => {
-            const listener = (serverPacket: ServerPacket) => {
+            const listener = (serverPacket: PacketAnswer<any>) => {
                 if (serverPacket._type !== "answer") return;
-                if (serverPacket._packetId == null || serverPacket._packetId != packet._packetId) return;
+                console.log("RESPONSE", serverPacket);
+                if (serverPacket._packetId != id) return;
                 if (serverPacket._error) {
                     j(serverPacket._error)
                 } else {
-                    r(serverPacket)
+                    r(serverPacket as any)
                 }
-                client.off("packet", listener);
+                client.off("answerPacket", listener);
             }
-            client.on("packet", listener)
+            client.on("answerPacket", listener)
         })
     }
 
