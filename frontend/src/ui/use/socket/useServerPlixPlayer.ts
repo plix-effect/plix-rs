@@ -48,3 +48,23 @@ export const useServerPlixPlayer = (): UseServerPlixPlayerResult => {
         setVolume: (i: number) => {}
     }
 }
+
+export const useServerPlixPlayerControl = (): Omit<UseServerPlixPlayerResult, "state"> => {
+    const ws = useWSClient();
+
+    const changePlayStatus = (status: "play" | "pause" | "stop") => {
+        ws.send("changePlayStatus", {status})
+    }
+
+    const selectPlix = (file: string) => {
+        ws.send("selectPlix", {file})
+    }
+
+    return {
+        play: changePlayStatus.bind(null, "play"),
+        pause: changePlayStatus.bind(null, "pause"),
+        stop: changePlayStatus.bind(null, "stop"),
+        selectPlix,
+        setVolume: (i: number) => {}
+    }
+}

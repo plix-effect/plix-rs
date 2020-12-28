@@ -57,7 +57,7 @@ export const createWSClient = async (address: string): Promise<IWSClient> => {
             console.warn("CLOSING because bad packet", obj);
             return;
         }
-        console.log("PACKET",obj)
+        if (obj._type == "playerState") console.log("PACKET",obj)
         if (obj._type === "answer") {
             emitter.emit("answerPacket", obj);
         } else {
@@ -89,7 +89,6 @@ export const createWSClient = async (address: string): Promise<IWSClient> => {
         return new Promise((r,j) => {
             const listener = (serverPacket: PacketAnswer<any>) => {
                 if (serverPacket._type !== "answer") return;
-                console.log("RESPONSE", serverPacket);
                 if (serverPacket._packetId != id) return;
                 if (serverPacket._error) {
                     j(serverPacket._error)

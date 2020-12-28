@@ -7,6 +7,8 @@ import {useServerPlixPlayer} from "../../../use/socket/useServerPlixPlayer";
 import Typography from "@material-ui/core/Typography";
 import {PlixFileSelector} from "../../control/PlixFileSelector";
 import Button from "@material-ui/core/Button";
+import {PlixPlayerView} from "../../control/player/PlixPlayerView";
+import {TrackListView} from "../../control/list/TrackListView";
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -16,7 +18,8 @@ const useStyles = makeStyles(theme => ({
         flexDirection: "column"
     },
     paper: {
-        flex: 1
+        flex: 1,
+        borderRadius: 0
     },
     title: {
         marginBottom: theme.spacing(1.5)
@@ -28,28 +31,13 @@ const useStyles = makeStyles(theme => ({
 
 export const MainPage: FC = () => {
     const classes = useStyles();
-    const {state, play, pause, stop, selectPlix} = useServerPlixPlayer();
-    const [currentFile, setCurrentFile] = useState(null);
-
-    const onChangeFile = (file) => {
-        selectPlix(file);
-        setCurrentFile(file);
-    }
 
     return (
         <div className={classes.root}>
             <DefaultPageAppBar title={"PLIX RS"}/>
             <Paper  elevation={0} className={classes.paper}>
-                <Typography>
-                    <span>Current file: ${currentFile}</span>
-                </Typography>
-                <PlixFileSelector file={currentFile} onChange={onChangeFile}/>
-                <Typography>
-                    <span>State: {JSON.stringify(state)}</span>
-                </Typography>
-                <Button variant="outlined" onClick={play}>Play</Button>
-                <Button variant="outlined" onClick={pause}>Pause</Button>
-                <Button variant="outlined" onClick={stop}>Stop</Button>
+                <PlixPlayerView/>
+                <TrackListView/>
             </Paper>
         </div>
     )

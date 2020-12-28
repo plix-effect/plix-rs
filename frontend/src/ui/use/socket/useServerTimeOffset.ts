@@ -10,8 +10,10 @@ export const useServerTimeOffset = (): [number, () => void] => {
         const perfBefore = performance.now();
         const sPacket = await ws.sendRequestPacket("syncTime", {})
         const perfAfterAnswer = performance.now();
-        const perfDif = perfAfterAnswer-perfBefore;
-        const dif = performance.now()*1000 - sPacket.time - perfDif;
+        // const perfDif = (perfAfterAnswer-pWerfBefore)/2;
+        const dif = sPacket.time - performance.now()*1000 //- (perfDif*1000);
+        console.log(`ServerTime(${sPacket.time}) === ${performance.now()*1000}`);
+        console.log(`Offset(${dif})`);
         setOffset(dif);
     }
 
