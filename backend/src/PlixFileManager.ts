@@ -6,7 +6,10 @@ import {readMp3Json} from "./utils/Mp3Meta";
 const readdir = util.promisify(fs.readdir);
 const checkExists = util.promisify(fs.exists);
 const mkdir = util.promisify(fs.mkdir);
-const readFile = util.promisify(fs.readFile);
+const readFileAsync = util.promisify(fs.readFile);
+const writeFileAsync = util.promisify(fs.writeFile);
+const unlinkAsync = util.promisify(fs.unlink);
+
 
 export const createPlixFileManager = (baseDir: string = path.join(__dirname, "/../", "plix")) => {
 
@@ -20,7 +23,7 @@ export const createPlixFileManager = (baseDir: string = path.join(__dirname, "/.
 
     const readFileData = async (file: string): Promise<ArrayBuffer> => {
         const path = getFullFilePath(file);
-        return readFile(path);
+        return readFileAsync(path);
     }
 
     const readJsonFromFile = async (file: string): Promise<object|null> => {
@@ -39,9 +42,20 @@ export const createPlixFileManager = (baseDir: string = path.join(__dirname, "/.
         return path.join(baseDir, fileName);
     }
 
+    const uploadFile = async (fileName: string, data: Buffer) => {
+        const path = getFullFilePath(fileName);
+        return writeFileAsync(path, data, {flag: "w"});
+    }
+    const removeFile = async (fileName: string) => {
+        const path = getFullFilePath(fileName);
+        return unlinkAsync(fileName);
+    }
+
     return {
         getFileList,
         readJsonFromFile,
+        uploadFile,
+        removeFile,
         getFullFilePath
     }
 }

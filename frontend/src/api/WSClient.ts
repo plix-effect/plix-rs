@@ -21,7 +21,6 @@ export interface IWSClientEvents {
 export interface IWSClient extends ITypedEventEmitter<IWSClientEvents>{
     close();
     send<T extends keyof ClientPacketMap>(type: T, packet: Omit<ClientPacket<T>, "_type" | "_packetId">): void;
-    sendFile(fileName: string, blob: ArrayBuffer): void;
     sendRequestPacket<T extends keyof ClientPacketMap>(type: T, packet: Omit<ClientPacket<T>, "_type" | "_packetId">): Promise<ServerAnswerPacketMap[T]>;
     status: WebSocket["readyState"];
     ready: boolean
@@ -75,18 +74,36 @@ export const createWSClient = async (address: string): Promise<IWSClient> => {
         ws.close(1000);
     }
 
-    client.send = (type, pp) => {
+    const sendFile = (fileName: string, fileData: ArrayBuffer): string => {
+        const packetId = generateNewPacketId();
+        const packetIdBuff = str2ab(packetId);
+        const packetIdSizeBuf = (new Uint32Array([packetIdBuff.byteLength])).buffer;
+        const nameArrBuffer = str2ab(fileName);
+        const nameSizeArrBuffer = (new Uint32Array([nameArrBuffer.byteLength])).buffer;
+        const finalArrayBuffer = joinArrayBuffers(packetIdSizeBuf, packetIdBuff, nameSizeArrBuffer, nameArrBuffer, fileData);
+        console.log("SENDING",packetId,fileName)
+        ws.send(finalArrayBuffer);
+        return packetId;
+    }
+
+    const send = <T extends keyof ClientPacketMap>(type: T, pp: Omit<ClientPacket<T>, "_type" | "_packetId">): string => {
+        if (type === "uploadFile") {
+            const uploadPacket = pp as any as ClientPacket<"uploadFile">;
+            return sendFile(uploadPacket.fileName, uploadPacket.file);
+        }
         const id = generateNewPacketId();
         const packet = {...pp, _packetId: id, _type: type}
         const str = JSON.stringify(packet);
         ws.send(str);
+        return id;
+    }
+
+    client.send = (type, pp) => {
+        send(type, pp);
     }
 
     client.sendRequestPacket = async (type, pp) => {
-        const id = generateNewPacketId();
-        const packet = {...pp, _packetId: id, _type: type}
-        const str = JSON.stringify(packet);
-        ws.send(str);
+        const id = send(type, pp);
         return new Promise((r,j) => {
             const listener = (serverPacket: PacketAnswer<any>) => {
                 if (serverPacket._type !== "answer") return;
@@ -102,12 +119,7 @@ export const createWSClient = async (address: string): Promise<IWSClient> => {
         })
     }
 
-    client.sendFile = (fileName, fileData) => {
-        const nameArrBuffer = str2ab(fileName);
-        const nameSizeArrBuffer = (new Uint32Array([nameArrBuffer.byteLength])).buffer;
-        const finalArrayBuffer = joinArrayBuffers(nameSizeArrBuffer,nameArrBuffer, fileData);
-        ws.send(finalArrayBuffer);
-    }
+
 
     Object.defineProperty(client, "status", {
         get(): any {

@@ -39,8 +39,8 @@ export const usePlixFiles = (): usePlixFilesReturn => {
 export const usePlixFilesControl = () => {
     const wsClient = useWSClient();
 
-    const sendFile = (fileName: string, data: ArrayBuffer) => {
-        wsClient.sendFile(fileName, data);
+    const sendFile = (fileName: string, file: ArrayBuffer) => {
+        return wsClient.sendRequestPacket("uploadFile", {file, fileName});
     }
 
     return [sendFile]

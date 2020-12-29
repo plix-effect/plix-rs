@@ -46,6 +46,16 @@ export type RequestPacketMap = {
             file: string
         }
         response: null
+    },
+    uploadFile: {
+        request: {
+            fileName: string,
+            file: ArrayBuffer | Buffer
+        },
+        response: {
+            success: boolean,
+            reason?: string
+        }
     }
 }
 
@@ -79,6 +89,9 @@ export type EventPacketMap = {
     },
     playerState: {
         state: PlixPlayerState
+    },
+    errorOccurred: {
+        error: string
     }
 }
 

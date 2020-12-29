@@ -6,7 +6,6 @@ import {ClientPacket, EventPacket, EventPacketMap, RequestPacketMap, ServerAnswe
 export interface IWSClientEvents {
     close: () => void;
     packet: (packet: ClientPacket) => void;
-    file: (name: string, data: Buffer) => void;
 }
 
 export interface IWSClient extends ITypedEventEmitter<IWSClientEvents>{
@@ -49,12 +48,24 @@ export const createWSClient = (ws: WebSocket): IWSClient => {
     }
 
     const handleFileReceiving = (msg: Buffer) => {
-        const nameSize = msg.readUInt32LE(0);
-        console.log("nameSize", nameSize);
-        const nameBuffer = msg.subarray(4,4+nameSize);
+        let offset = 0;
+        const packetIdSize = msg.readUInt32LE(offset);
+        const packetIdBuff = msg.subarray(offset+4,offset+4+packetIdSize);
+        const packetId = ab2str(packetIdBuff);
+        offset += 4+packetIdSize;
+
+        const nameSize = msg.readUInt32LE(offset);
+        const nameBuffer = msg.subarray(offset+4,offset+4+nameSize);
         const name = ab2str(nameBuffer);
-        const data = msg.subarray(4+nameSize);
-        emitter.emit("file", name, data);
+        offset += 4+nameSize;
+
+        const data = msg.subarray(offset);
+        emitter.emit("packet", {
+            _type: "uploadFile",
+            _packetId: packetId,
+            file: data,
+            fileName: name
+        })
     }
 
     ws.on("close", () => {
