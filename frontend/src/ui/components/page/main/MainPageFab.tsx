@@ -34,7 +34,14 @@ export const MainPageFab: FC = () => {
 
     return (
         <div className={classes.root}>
-            <input ref={inputFileRef} type="file" name="name" className={classes.inputElement} onChange={onFileSelected}/>
+            <input
+                ref={inputFileRef}
+                type="file"
+                name="name"
+                className={classes.inputElement}
+                onChange={onFileSelected}
+                accept=".mp3, .json"
+            />
             <Fab color="primary" aria-label="add" onClick={onClickUpload}>
                 <PublishIcon />
             </Fab>
