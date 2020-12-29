@@ -49,6 +49,7 @@ export class PlixPlayer extends TypedEventEmitter<PlixPlayerEvents> {
             this.state.status = null;
             return this.state;
         }
+        this.musicPlayer.stop();
         this.state = {
             status: "stop",
             volume: this.musicPlayer.getState().volume,
@@ -71,20 +72,19 @@ export class PlixPlayer extends TypedEventEmitter<PlixPlayerEvents> {
     }
 
     public async start() {
-        if (!(["pause", "stop"] as any[]).includes(this.state.status)) return
+        if ((["play", "loading", null] as any[]).includes(this.state.status)) return
         if (!this.parsedRenderResult) return;
         const playinObj = this.state.playingObject;
         if (playinObj?.type !== "track") return;
         const fileName = playinObj.track.file;
+        const fullFilePath = this.plixFileManager.getFullFilePath(fileName);
         if (this.isCurrentFileMP3) {
-            if (this.musicPlayer.getState().file !== fileName) {
-                console.log("BLA")
-                await this.musicPlayer.startFile(this.plixFileManager.getFullFilePath(fileName));
+            if (this.musicPlayer.getState().file !== fullFilePath) {
+                await this.musicPlayer.startFile(fullFilePath);
             }
         }
         if (this.isCurrentFileMP3) {
-            await this.musicPlayer.play();
-            await this.musicPlayer.seek(this.pauseTime/1000);
+            this.musicPlayer.play();
         }
         this.playFromTimestamp = process.uptime()*1000 - this.pauseTime;
         this.pauseTime = 0;
@@ -104,7 +104,7 @@ export class PlixPlayer extends TypedEventEmitter<PlixPlayerEvents> {
     }
 
     public async stop() {
-        this.state = {...this.state, status: "stop"};
+        this.state = {...this.state, status: "stop", pauseTime: undefined, playFromTime: undefined};
         this.pauseTime = 0;
         if (this.isCurrentFileMP3) {
             this.musicPlayer.stop();
@@ -151,7 +151,6 @@ export class PlixPlayer extends TypedEventEmitter<PlixPlayerEvents> {
             const color = colorMod(BLACK);
             uArr[i] = toNumber(color);
         }
-        console.log(dif, JSON.stringify(uArr), this.currentDuration);
         this.adafruitService.write(uArr);
     }
 

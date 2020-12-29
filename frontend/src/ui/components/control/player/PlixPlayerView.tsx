@@ -65,7 +65,7 @@ export const PlixPlayerView: FC = () => {
             <div className={classes.root}>
                 <PlayerCoverImageBackground/>
                 <div className={classes.container}>
-                    <PlayerProgressBar duration={state.duration} playingFromTime={playingFromTime} pauseTime={state.pauseTime}/>
+                    <PlayerProgressBar playing={playing} duration={state.duration} playingFromTime={playingFromTime} pauseTime={state.pauseTime}/>
                     <div className={classes.middleRow}>
                         <IconButton color={"default"} disabled={!changeStatusActionsAllowed} onClick={playing ? pause : play}>
                             {

@@ -26,7 +26,8 @@ const useStyles = makeStyles(theme => ({
 interface PlayerProgressBarProps {
     duration?: number
     playingFromTime?: number,
-    pauseTime?: number
+    pauseTime?: number,
+    playing: boolean
 }
 
 const millisToMinutesAndSeconds = (millis) => {
@@ -36,7 +37,7 @@ const millisToMinutesAndSeconds = (millis) => {
     return `${minutes}:${(seconds < 10 ? "0" : "")}${seconds}`;
 }
 
-export const PlayerProgressBar: FC<PlayerProgressBarProps> = ({duration, playingFromTime, pauseTime}) => {
+export const PlayerProgressBar: FC<PlayerProgressBarProps> = ({duration, playingFromTime, pauseTime, playing}) => {
     const classes = useStyles();
 
     const calcCurTime = useLatestCallback(() => {
@@ -59,7 +60,7 @@ export const PlayerProgressBar: FC<PlayerProgressBarProps> = ({duration, playing
     }, [playingFromTime])
 
     useEffect(() => {
-        if (playingFromTime == null) return;
+        if (playingFromTime == null || !playing) return;
         const intervalId = setInterval(() => {
             const time = calcCurTime();
             console.log("SET CUR TIME", time);
@@ -69,7 +70,7 @@ export const PlayerProgressBar: FC<PlayerProgressBarProps> = ({duration, playing
         return () => {
             clearInterval(intervalId)
         }
-    }, [setCurTime, playingFromTime, pauseTime])
+    }, [setCurTime, playingFromTime, pauseTime, playing])
 
 
     const sliderView = (curTime == null || duration == null) ?
