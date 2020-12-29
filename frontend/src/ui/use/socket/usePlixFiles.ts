@@ -35,3 +35,13 @@ export const usePlixFiles = (): usePlixFilesReturn => {
 
     return [files,requestFiles];
 }
+
+export const usePlixFilesControl = () => {
+    const wsClient = useWSClient();
+
+    const sendFile = (fileName: string, data: ArrayBuffer) => {
+        wsClient.sendFile(fileName, data);
+    }
+
+    return [sendFile]
+}

@@ -55,9 +55,7 @@ export const PlixPlayerView: FC = () => {
             currentTrackName = state.playingObject.track.name;
         }
 
-        const playingFromTime = state.playFromTimestamp == null ? null : (state.playFromTimestamp - offset*2);
-        console.log("PlayFromTime",playingFromTime, "NOW", performance.now()*1000, "OFFSET", offset);
-        console.log("DIFF",performance.now()*1000 - playingFromTime);
+        const playingFromTime = state.playFromTime == null ? null : state.playFromTime + offset;
 
         return [playing, changeStatusActionsAllowed, currentTrackName, playingFromTime]
     }, [state, offset])

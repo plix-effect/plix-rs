@@ -42,7 +42,7 @@ export const PlayerProgressBar: FC<PlayerProgressBarProps> = ({duration, playing
     const calcCurTime = useLatestCallback(() => {
         if (pauseTime != null) return pauseTime
         if (playingFromTime == null) return null;
-        const val = performance.now()*1000 - playingFromTime;
+        const val = performance.now() - playingFromTime;
         if (val > duration) return duration
         return val;
     })
@@ -62,6 +62,7 @@ export const PlayerProgressBar: FC<PlayerProgressBarProps> = ({duration, playing
         if (playingFromTime == null) return;
         const intervalId = setInterval(() => {
             const time = calcCurTime();
+            console.log("SET CUR TIME", time);
             setCurTime(time);
         }, 1000)
 

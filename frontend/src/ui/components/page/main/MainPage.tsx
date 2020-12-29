@@ -9,6 +9,7 @@ import {PlixFileSelector} from "../../control/PlixFileSelector";
 import Button from "@material-ui/core/Button";
 import {PlixPlayerView} from "../../control/player/PlixPlayerView";
 import {TrackListView} from "../../control/list/TrackListView";
+import {MainPageFab} from "./MainPageFab";
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -35,6 +36,7 @@ export const MainPage: FC = () => {
     return (
         <div className={classes.root}>
             <DefaultPageAppBar title={"PLIX RS"}/>
+            <MainPageFab/>
             <Paper  elevation={0} className={classes.paper}>
                 <PlixPlayerView/>
                 <TrackListView/>

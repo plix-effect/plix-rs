@@ -59,7 +59,7 @@ export class PlixPlayer extends TypedEventEmitter<PlixPlayerEvents> {
                     name: file
                 }
             },
-            playFromTimestamp: undefined,
+            playFromTime: undefined,
             duration: this.currentDuration
         }
         this.emit("state", this.state);
@@ -88,7 +88,7 @@ export class PlixPlayer extends TypedEventEmitter<PlixPlayerEvents> {
         }
         this.playFromTimestamp = process.uptime()*1000 - this.pauseTime;
         this.pauseTime = 0;
-        this.state = {...this.state, status: "play", playFromTimestamp: this.playFromTimestamp, pauseTime: undefined};
+        this.state = {...this.state, status: "play", playFromTime: this.playFromTimestamp, pauseTime: undefined};
         this.emit("state", this.state);
         this.doTick();
     }
@@ -115,10 +115,10 @@ export class PlixPlayer extends TypedEventEmitter<PlixPlayerEvents> {
     public async seek(timeMs: number) {
         if (this.state.status === "play") {
             this.playFromTimestamp -= timeMs;
-            this.state = {...this.state, playFromTimestamp: this.playFromTimestamp};
+            this.state = {...this.state, playFromTime: this.playFromTimestamp};
         } else {
             this.pauseTime = timeMs;
-            this.state = {...this.state, playFromTimestamp: this.playFromTimestamp, pauseTime: this.pauseTime, status: "pause"};
+            this.state = {...this.state, playFromTime: this.playFromTimestamp, pauseTime: this.pauseTime, status: "pause"};
         }
         if (this.isCurrentFileMP3) {
             this.musicPlayer.seek(timeMs/1000);

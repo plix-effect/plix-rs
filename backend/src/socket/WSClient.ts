@@ -1,13 +1,12 @@
 import {IPublicTypedEventEmitter, ITypedEventEmitter, TypedEventEmitter} from "../utils/TypedEventEmitter";
 import WebSocket from "ws";
 import {EventEmitter} from "events";
-import {cli} from "webpack";
 import {ClientPacket, EventPacket, EventPacketMap, RequestPacketMap, ServerAnswerPacket} from "../../../typings/Packets";
 
 export interface IWSClientEvents {
     close: () => void;
     packet: (packet: ClientPacket) => void;
-    file: (data: Buffer) => void;
+    file: (name: string, data: Buffer) => void;
 }
 
 export interface IWSClient extends ITypedEventEmitter<IWSClientEvents>{
@@ -24,6 +23,9 @@ export const createWSClient = (ws: WebSocket): IWSClient => {
     ws.on("message", (msg) => {
         if (typeof msg === "string") {
             handleStringMessage(msg)
+        } else if (msg instanceof Buffer)  {
+            console.log("BUFFER LEN", msg.length)
+            handleFileReceiving(msg);
         }
     });
 
@@ -46,6 +48,15 @@ export const createWSClient = (ws: WebSocket): IWSClient => {
         emitter.emit("packet", obj)
     }
 
+    const handleFileReceiving = (msg: Buffer) => {
+        const nameSize = msg.readUInt32LE(0);
+        console.log("nameSize", nameSize);
+        const nameBuffer = msg.subarray(4,4+nameSize);
+        const name = ab2str(nameBuffer);
+        const data = msg.subarray(4+nameSize);
+        emitter.emit("file", name, data);
+    }
+
     ws.on("close", () => {
         emitter.emit("close");
     })
@@ -60,4 +71,9 @@ export const createWSClient = (ws: WebSocket): IWSClient => {
     }
 
     return client;
+}
+
+const textDecoder = new TextDecoder();
+function ab2str(buf) {
+    return textDecoder.decode(buf);
 }

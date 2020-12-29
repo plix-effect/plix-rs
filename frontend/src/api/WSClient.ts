@@ -21,6 +21,7 @@ export interface IWSClientEvents {
 export interface IWSClient extends ITypedEventEmitter<IWSClientEvents>{
     close();
     send<T extends keyof ClientPacketMap>(type: T, packet: Omit<ClientPacket<T>, "_type" | "_packetId">): void;
+    sendFile(fileName: string, blob: ArrayBuffer): void;
     sendRequestPacket<T extends keyof ClientPacketMap>(type: T, packet: Omit<ClientPacket<T>, "_type" | "_packetId">): Promise<ServerAnswerPacketMap[T]>;
     status: WebSocket["readyState"];
     ready: boolean
@@ -101,6 +102,13 @@ export const createWSClient = async (address: string): Promise<IWSClient> => {
         })
     }
 
+    client.sendFile = (fileName, fileData) => {
+        const nameArrBuffer = str2ab(fileName);
+        const nameSizeArrBuffer = (new Uint32Array([nameArrBuffer.byteLength])).buffer;
+        const finalArrayBuffer = joinArrayBuffers(nameSizeArrBuffer,nameArrBuffer, fileData);
+        ws.send(finalArrayBuffer);
+    }
+
     Object.defineProperty(client, "status", {
         get(): any {
             return ws.readyState
@@ -122,3 +130,22 @@ export const createWSClient = async (address: string): Promise<IWSClient> => {
         }
     })
 }
+
+const enc = new TextEncoder();
+function str2ab(str) {
+    return enc.encode(str).buffer;
+}
+
+const joinArrayBuffers = (...buffers: ArrayBuffer[]): ArrayBuffer => {
+    const size = buffers.map(it => it.byteLength).reduce((prev, cur) => prev+cur, 0);
+    var tmp = new Uint8Array(size);
+    let curOffset = 0;
+    buffers.forEach((b, i) => {
+        tmp.set(new Uint8Array(b), curOffset);
+        curOffset += b.byteLength;
+    })
+    console.log("BUFFERS", buffers);
+    console.log("CONCATED", tmp.buffer);
+    return tmp.buffer;
+};
+
