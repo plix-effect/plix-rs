@@ -11,7 +11,8 @@
     "back:buildWatch": "tsc --project backend/tsconfig.json -w",
     "back:nodemon": "nodemon --watch  _dist --ignore _dist/web",
     "back:start": "concurrently \\\"npm:back:buildWatch\\\" \\\"npm:back:nodemon\\\"",
-    "both:start": "concurrently \\\"npm:front:start\\\" \\\"npm:back:start\\\""
+    "both:start": "concurrently \\\"npm:front:start\\\" \\\"npm:back:start\\\"",
+    "build": "npm run back:build && npm run front:build"
   },
   "keywords": [
     "Plix",
