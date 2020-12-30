@@ -19,7 +19,6 @@ export class MPlayerService extends TypedEventEmitter<IMusicPlayerServiceEvents>
 
     async startFile(file: string) {
         const player = this.player;
-        console.log("STARTING", file);
         const mp3PathForMPlayer = file.replace(/\\/g, "/")
         this.lastKnownStatus = "loading"
         this.lastKnownFile = file;

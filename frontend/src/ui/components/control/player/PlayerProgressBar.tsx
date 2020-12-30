@@ -63,7 +63,6 @@ export const PlayerProgressBar: FC<PlayerProgressBarProps> = ({duration, playing
         if (playingFromTime == null || !playing) return;
         const intervalId = setInterval(() => {
             const time = calcCurTime();
-            console.log("SET CUR TIME", time);
             setCurTime(time);
         }, 1000)
 

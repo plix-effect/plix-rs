@@ -21,8 +21,6 @@ module.exports = (env, argv) => {
         // {search: '\\$WEBPACK_ENABLE_SW', replace:String(SW_ENABLED), flags: "g"},
     ];
 
-
-    console.log(__dirname);
     return {
         devtool: 'source-map',
         mode: PRODUCTION ? 'production' : 'development',

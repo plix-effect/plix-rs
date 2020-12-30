@@ -23,7 +23,6 @@ export const createWSClient = (ws: WebSocket): IWSClient => {
         if (typeof msg === "string") {
             handleStringMessage(msg)
         } else if (msg instanceof Buffer)  {
-            console.log("BUFFER LEN", msg.length)
             handleFileReceiving(msg);
         }
     });

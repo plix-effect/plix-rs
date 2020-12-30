@@ -28,7 +28,6 @@ export const MainPageFab: FC = () => {
         const file = e.target.files[0];
         const name = file.name;
         const fileData = await file.arrayBuffer();
-        console.log("SENDING",name);
         sendFile(name,fileData);
     }
 

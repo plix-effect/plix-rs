@@ -14,10 +14,8 @@ const plixPlayer = new PlixPlayer(plixFileManager, adafruitService, new MPlayerS
 const app = createRSServer({plixPlayer, plixFileManager})
 
 app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`)
+    console.info(`PLIX-RS app listening at http://localhost:${port}`)
 })
-
-console.log("process.platform",process.platform)
 
 
 // import {PlixPlayer} from "./plix/plix-player/PlixPlayer";

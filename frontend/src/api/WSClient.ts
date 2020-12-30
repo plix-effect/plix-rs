@@ -1,6 +1,5 @@
 import {IPublicTypedEventEmitter, ITypedEventEmitter} from "../utils/TypedEventEmitter";
 import {TypedEventEmitter} from "../../../backend/src/utils/TypedEventEmitter";
-import {cli} from "webpack";
 import {generateNewPacketId} from "../utils/packet-utils";
 import {
     ClientPacket,
@@ -57,7 +56,6 @@ export const createWSClient = async (address: string): Promise<IWSClient> => {
             console.warn("CLOSING because bad packet", obj);
             return;
         }
-        if (obj._type == "playerState") console.log("PACKET",obj)
         if (obj._type === "answer") {
             emitter.emit("answerPacket", obj);
         } else {
@@ -81,7 +79,6 @@ export const createWSClient = async (address: string): Promise<IWSClient> => {
         const nameArrBuffer = str2ab(fileName);
         const nameSizeArrBuffer = (new Uint32Array([nameArrBuffer.byteLength])).buffer;
         const finalArrayBuffer = joinArrayBuffers(packetIdSizeBuf, packetIdBuff, nameSizeArrBuffer, nameArrBuffer, fileData);
-        console.log("SENDING",packetId,fileName)
         ws.send(finalArrayBuffer);
         return packetId;
     }
@@ -156,8 +153,6 @@ const joinArrayBuffers = (...buffers: ArrayBuffer[]): ArrayBuffer => {
         tmp.set(new Uint8Array(b), curOffset);
         curOffset += b.byteLength;
     })
-    console.log("BUFFERS", buffers);
-    console.log("CONCATED", tmp.buffer);
     return tmp.buffer;
 };
 
