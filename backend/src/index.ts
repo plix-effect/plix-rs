@@ -3,18 +3,28 @@ import {createPlixFileManager} from "./PlixFileManager";
 import {AdafruitService} from "./plix/adafruit";
 import {PlixPlayer} from "./plix/plix-player/PlixPlayer";
 import {MPlayerService} from "./music/MPlayerService";
+import DEFAULT_CONFIG from "./config.json"
+import minimist from "minimist"
 
-const port = 8083
+const args = minimist(process.argv);
+const config = Object.create(DEFAULT_CONFIG);
+
+
+const putArgToConfig = (argName) => {
+    if (args.hasOwnProperty(argName)) config[argName] = args[argName];
+}
+["port", "stripLength", "stripScheme", "stripConnection"].forEach((argName) => {
+    putArgToConfig(argName)
+})
 
 const plixFileManager = createPlixFileManager();
-const adafruitService = new AdafruitService({leds: 10});
+const adafruitService = new AdafruitService({leds: config.length, strip: config.stripScheme});
 const plixPlayer = new PlixPlayer(plixFileManager, adafruitService, new MPlayerService());
-
 
 const app = createRSServer({plixPlayer, plixFileManager})
 
-app.listen(port, () => {
-    console.info(`PLIX-RS app listening at http://localhost:${port}`)
+app.listen(config.port, () => {
+    console.info(`PLIX-RS app listening at http://localhost:${config.port}`)
 })
 
 //

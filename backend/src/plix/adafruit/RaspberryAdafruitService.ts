@@ -1,4 +1,5 @@
 import {AbstractAdafruitService} from "./AbstractAdafruitService";
+import {numberToRgba} from "@plix-effect/core/color";
 const ws281x = require('rpi-ws281x-v2');
 
 export interface AbstractAdafruitServiceConfig {
@@ -21,6 +22,10 @@ export class RaspberryAdafruitService extends AbstractAdafruitService {
     }
 
     write(data: Uint32Array) {
+        for(let i = 0; i++; i < data.length) {
+            const {r,g,b,a} = numberToRgba(data[i])
+            data[i] = (Math.min(r,255) * a) << 16 | (Math.min(g,255) * a) << 8 | (Math.min(b,255) * a);
+        }
         ws281x.render(data);
     }
 

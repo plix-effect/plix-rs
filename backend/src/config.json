@@ -1,0 +1,6 @@
+{
+  "port": 80,
+  "stripLength": 102,
+  "stripScheme": "grb",
+  "stripConnection": null
+}
