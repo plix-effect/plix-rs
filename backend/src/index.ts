@@ -18,7 +18,7 @@ const putArgToConfig = (argName) => {
 })
 
 const plixFileManager = createPlixFileManager();
-const adafruitService = new AdafruitService({leds: config.length, strip: config.stripScheme});
+const adafruitService = new AdafruitService({leds: config.stripLength, strip: config.stripScheme});
 const plixPlayer = new PlixPlayer(plixFileManager, adafruitService, new MPlayerService());
 
 const app = createRSServer({plixPlayer, plixFileManager})

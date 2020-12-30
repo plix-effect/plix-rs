@@ -1,4 +1,5 @@
 import {AbstractAdafruitService} from "./AbstractAdafruitService";
+import {numberToRgba, rgbaToNumber} from "@plix-effect/core/color";
 
 export interface AbstractAdafruitServiceConfig {
     dma?: number // frequency. Default is 10
@@ -19,8 +20,7 @@ export class DummyAdafruitService extends AbstractAdafruitService {
         console.warn("DummyAdafruitService has no realisation of any methods");
     }
 
-    write(data: Uint32Array) {
-    }
+    write(data: Uint32Array) {}
 
     getPixelCount(): number {
         return this.config.leds || 1;
