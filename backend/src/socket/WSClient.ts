@@ -2,6 +2,7 @@ import {IPublicTypedEventEmitter, ITypedEventEmitter, TypedEventEmitter} from ".
 import WebSocket from "ws";
 import {EventEmitter} from "events";
 import {ClientPacket, EventPacket, EventPacketMap, RequestPacketMap, ServerAnswerPacket} from "../../../typings/Packets";
+import {TextDecoder} from "text-decoding";
 
 export interface IWSClientEvents {
     close: () => void;
