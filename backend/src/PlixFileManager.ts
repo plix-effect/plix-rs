@@ -48,7 +48,7 @@ export const createPlixFileManager = (baseDir: string = path.join(__dirname, "/.
     }
     const removeFile = async (fileName: string) => {
         const path = getFullFilePath(fileName);
-        return unlinkAsync(fileName);
+        return unlinkAsync(path);
     }
 
     return {

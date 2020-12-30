@@ -56,6 +56,15 @@ export type RequestPacketMap = {
             success: boolean,
             reason?: string
         }
+    },
+    removeFile: {
+        request: {
+            fileName: string
+        },
+        response: {
+            success: boolean,
+            reason?: string
+        }
     }
 }
 

@@ -57,6 +57,14 @@ export const createRSServer = ({plixFileManager, plixPlayer}: RSServerOptions) =
         })
     }
 
+    const broadcastFilesChanged = async () => {
+        const files = await plixFileManager.getFileList();
+        broadcastPacket({
+            "_type": "filesChanged",
+            files: files
+        })
+    }
+
 
     const handlePacket = async (ws: IWSClient, packet: ClientPacket): Promise<ServerAnswerPacket> => {
         if (packet._type === "requestFiles") {
@@ -116,14 +124,29 @@ export const createRSServer = ({plixFileManager, plixPlayer}: RSServerOptions) =
                     reason: "Only mp3 and json files allowed"
                 }
             }
-
             await plixFileManager.uploadFile(fileName, file as Buffer);
-            const files = await plixFileManager.getFileList();
-            broadcastPacket({
-                "_type": "filesChanged",
-                files: files
-            })
+            broadcastFilesChanged();
             return  {
+                _type: "answer",
+                _packetId: packet._packetId,
+                _clientPacketType: packet._type,
+                success: true,
+            }
+        } else if (packet._type === "removeFile") {
+            const fileName = packet.fileName;
+            try {
+                await plixFileManager.removeFile(fileName)
+            } catch (e) {
+                return {
+                    _type: "answer",
+                    _packetId: packet._packetId,
+                    _clientPacketType: packet._type,
+                    success: false,
+                    reason: e.toString()
+                }
+            }
+            broadcastFilesChanged();
+            return {
                 _type: "answer",
                 _packetId: packet._packetId,
                 _clientPacketType: packet._type,

@@ -43,5 +43,10 @@ export const usePlixFilesControl = () => {
         return wsClient.sendRequestPacket("uploadFile", {file, fileName});
     }
 
-    return [sendFile]
+
+    const removeFile = (fileName: string) => {
+        return wsClient.sendRequestPacket("removeFile", {fileName});
+    }
+
+    return [sendFile, removeFile] as const
 }
