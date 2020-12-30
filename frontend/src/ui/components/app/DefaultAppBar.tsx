@@ -27,7 +27,7 @@ export const DefaultPageAppBar: FC<IDefaultPageAppBarProps> = ({title}) => {
     const isXS = useMediaQuery(theme.breakpoints.only('xs'));
 
     return (
-        <AppBar position="static">
+        <AppBar position="sticky">
             <Toolbar variant={isXS ? "regular" : "dense"}>
                 <IconButton edge="start" color={"inherit"} onClick={toggleDrawer}>
                     <MenuIcon />

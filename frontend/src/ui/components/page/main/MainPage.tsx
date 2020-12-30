@@ -22,13 +22,14 @@ const useStyles = makeStyles(theme => ({
         flex: 1,
         borderRadius: 0
     },
-    title: {
-        marginBottom: theme.spacing(1.5)
-    },
-    optionName: {
-        fontWeight: "bold"
+    container: {
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        height: "calc(100vh - 56px)",
+        overflow: "hidden"
     }
-}), {classNamePrefix: "AboutGamePage"})
+}), {classNamePrefix: "MainPage"})
 
 export const MainPage: FC = () => {
     const classes = useStyles();
@@ -38,8 +39,10 @@ export const MainPage: FC = () => {
             <DefaultPageAppBar title={"PLIX RS"}/>
             <MainPageFab/>
             <Paper  elevation={0} className={classes.paper}>
-                <PlixPlayerView/>
-                <TrackListView/>
+                <div className={classes.container}>
+                    <PlixPlayerView/>
+                    <TrackListView/>
+                </div>
             </Paper>
         </div>
     )

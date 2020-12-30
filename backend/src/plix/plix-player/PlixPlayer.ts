@@ -79,7 +79,7 @@ export class PlixPlayer extends TypedEventEmitter<PlixPlayerEvents> {
         const fileName = playinObj.track.file;
         const fullFilePath = this.plixFileManager.getFullFilePath(fileName);
         if (this.isCurrentFileMP3) {
-            if (this.musicPlayer.getState().file !== fullFilePath) {
+            if (this.musicPlayer.getState().file !== fullFilePath || this.state.status === "stop") {
                 await this.musicPlayer.startFile(fullFilePath);
             }
         }

@@ -15,7 +15,8 @@ import {useServerTimeOffset} from "../../../use/socket/useServerTimeOffset";
 const useStyles = makeStyles(theme => ({
     root: {
         position: "relative",
-        height: "30vh",
+        height: "220px",
+        minHeight: "220px",
         width: "100%",
         borderBottom: "1px solid white"
     },

@@ -9,9 +9,16 @@ import {useServerPlixPlayer, useServerPlixPlayerControl} from "../../../use/sock
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import DeleteIcon from '@material-ui/icons/Delete';
 import {IconButton} from "@material-ui/core";
+import makeStyles from "@material-ui/core/styles/makeStyles";
+
+const useStyles = makeStyles(styles => ({
+    root: {
+        overflowY: "auto"
+    }
+}), {classNamePrefix: "TackListView"})
 
 export const TrackListView: FC = () => {
-
+    const classes = useStyles();
     const [files] = usePlixFiles();
     const [uploadFile, removeFile] = usePlixFilesControl();
     const {selectPlix, state} = useServerPlixPlayer();
@@ -40,7 +47,7 @@ export const TrackListView: FC = () => {
                     <ListItemIcon>
                         {
                             selected ?
-                                <PlayArrowIcon/>
+                                <PlayArrowIcon color={"primary"}/>
                                 :
                                 <Typography style={{marginLeft: 8}}>{i+1}</Typography>
                         }
@@ -55,7 +62,7 @@ export const TrackListView: FC = () => {
     }, [files, currentTrackName])
 
     return (
-        <List component="nav" onClick={() => {}}>
+        <List component="nav" className={classes.root} onClick={() => {}}>
             {filesView}
         </List>
     )

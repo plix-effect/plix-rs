@@ -8,7 +8,8 @@ const useStyles = makeStyles(styles => ({
     root: {
         position: "fixed",
         bottom: 20,
-        right: 20
+        right: 20,
+        zIndex: 10,
     },
     inputElement: {
         display: "none"

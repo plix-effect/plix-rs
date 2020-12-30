@@ -31,7 +31,7 @@ interface PlayerProgressBarProps {
 }
 
 const millisToMinutesAndSeconds = (millis) => {
-    if (millis == null) return "0:00";
+    if (millis == null || millis < 0) return "0:00";
     var minutes = Math.floor(millis / 60000);
     var seconds = Number(((millis % 60000) / 1000).toFixed(0));
     return `${minutes}:${(seconds < 10 ? "0" : "")}${seconds}`;
