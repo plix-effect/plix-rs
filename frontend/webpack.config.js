@@ -13,7 +13,8 @@ const {createProxyMiddleware : proxy} = require('http-proxy-middleware');
 
 module.exports = (env, argv) => {
     const PRODUCTION = argv.mode === "production";
-    let WSHost = PRODUCTION ? "null" : "localhost:8083";
+    const BACK_DEFAULT_PORT = 80;
+    let WSHost = PRODUCTION ? "null" : "localhost:"+BACK_DEFAULT_PORT;
 
 
     const REPLACEMENTS = [
@@ -113,7 +114,7 @@ module.exports = (env, argv) => {
                     "retry": true
                 },
                 middleware: (app, middleware, options) => {
-                    app.use(convert(proxy('/service', { target: 'http://localhost:8083', secure: false, changeOrigin: true })));
+                    app.use(convert(proxy('/api', { target: 'http://localhost:'+BACK_DEFAULT_PORT, secure: false, changeOrigin: true })));
                     app.use(convert(history()));
                 }
             })

@@ -1,8 +1,15 @@
-import React, {ChangeEvent, FC, useRef} from "react";
+import React, {ChangeEvent, FC, useRef, useState} from "react";
 import {usePlixFilesControl} from "../../../use/socket/usePlixFiles";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import Fab from "@material-ui/core/Fab";
 import PublishIcon from '@material-ui/icons/Publish';
+import {useAsyncRequest} from "../../../use/useAsyncRequest";
+import useLatestCallback from "../../../use/useLatestCallback";
+import {CircularProgress} from "@material-ui/core";
+import { green } from '@material-ui/core/colors';
+
+import classnames from 'classnames';
+import CheckIcon from '@material-ui/icons/Check';
 
 const useStyles = makeStyles(styles => ({
     root: {
@@ -13,7 +20,20 @@ const useStyles = makeStyles(styles => ({
     },
     inputElement: {
         display: "none"
-    }
+    },
+    fabProgress: {
+        color: styles.palette.secondary.light,
+        position: 'absolute',
+        top: -6,
+        left: -6,
+        zIndex: 1,
+    },
+    buttonSuccess: {
+        backgroundColor: green[500],
+        '&:hover': {
+            backgroundColor: green[700],
+        },
+    },
 }), {classNamePrefix: "MainPageFab"})
 
 export const MainPageFab: FC = () => {
@@ -21,7 +41,41 @@ export const MainPageFab: FC = () => {
     const [sendFile] = usePlixFilesControl();
     const inputFileRef = useRef<HTMLInputElement>()
 
+    const [pending, setPending] = useState(false);
+    const [error, setError] = useState<string>(null);
+    const [success, setSuccess] = useState<boolean>(null);
+
+    const sendFileCallback = useLatestCallback(async (name: string, file: ArrayBuffer) => {
+        setPending(true);
+        const answer = await sendFile(name, file);
+        setPending(false);
+        if (answer.success) {
+            setSuccessButton()
+        } else {
+            setErrorButton(answer.reason);
+        }
+    });
+
+    const setErrorButton = (e: string) => {
+        setError(e);
+        setTimeout(() => {
+            setError(null)
+        }, 3000);
+    }
+
+    const setSuccessButton = () => {
+        setSuccess(true);
+        setTimeout(() => {
+            setSuccess(null)
+        }, 3000);
+    }
+
+    const buttonClassname = classnames({
+        [classes.buttonSuccess]: success,
+    });
+
     const onClickUpload = () => {
+        if (pending || error || success) return;
         inputFileRef.current.click();
     }
 
@@ -29,7 +83,7 @@ export const MainPageFab: FC = () => {
         const file = e.target.files[0];
         const name = file.name;
         const fileData = await file.arrayBuffer();
-        sendFile(name,fileData);
+        sendFileCallback(name,fileData);
     }
 
     return (
@@ -42,9 +96,11 @@ export const MainPageFab: FC = () => {
                 onChange={onFileSelected}
                 accept=".mp3, .json"
             />
-            <Fab color="primary" aria-label="add" onClick={onClickUpload}>
-                <PublishIcon />
+            <Fab color="primary" aria-label="add" onClick={onClickUpload} className={buttonClassname}>
+                {success ? <CheckIcon/> :<PublishIcon />}
             </Fab>
+            {pending && <CircularProgress size={68} className={classes.fabProgress} />}
+
         </div>
     )
 }

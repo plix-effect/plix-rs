@@ -64,9 +64,9 @@ export const createWSClient = async (address: string): Promise<IWSClient> => {
     }
 
 
-    ws.onclose = (ev) => {
+    ws.addEventListener("close", (ev) => {
         emitter.emit("close", ev.code, ev.reason)
-    }
+    })
 
     client.close = () => {
         ws.close(1000);
