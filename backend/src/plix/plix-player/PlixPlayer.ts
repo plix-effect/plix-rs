@@ -42,6 +42,7 @@ export class PlixPlayer extends TypedEventEmitter<PlixPlayerEvents> {
         this.state = {
             volume: this.musicPlayer.getState().volume,
         }
+        this.adafruitService.clear();
         this.state.status = "loading"
         this.emit("state", this.state);
         await this.parsePlixFile(file);
@@ -109,6 +110,7 @@ export class PlixPlayer extends TypedEventEmitter<PlixPlayerEvents> {
         if (this.isCurrentFileMP3) {
             this.musicPlayer.stop();
         }
+        this.adafruitService.clear();
         this.emit("state", this.state);
     }
 

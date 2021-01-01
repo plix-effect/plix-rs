@@ -32,4 +32,12 @@ export class RaspberryAdafruitService extends AbstractAdafruitService {
     getPixelCount(): number {
         return this.config.leds || 1;
     }
+
+    clear() {
+        const arr = new Uint32Array(this.config.leds || 10);
+        for (let i = 0; i < arr.length; i++) {
+            arr[i] = 0;
+        }
+        this.write(arr);
+    }
 }

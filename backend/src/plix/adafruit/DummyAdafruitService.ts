@@ -25,4 +25,6 @@ export class DummyAdafruitService extends AbstractAdafruitService {
     getPixelCount(): number {
         return this.config.leds || 1;
     }
+
+    clear() {}
 }

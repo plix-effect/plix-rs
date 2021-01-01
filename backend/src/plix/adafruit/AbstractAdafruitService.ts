@@ -9,4 +9,8 @@ export class AbstractAdafruitService {
     getPixelCount(): number {
         throw new Error("Not implemented");
     }
+
+    clear() {
+        throw new Error("Not implemented");
+    }
 }
