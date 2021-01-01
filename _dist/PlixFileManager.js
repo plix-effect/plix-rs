@@ -70,7 +70,7 @@ var readFileAsync = util_1.default.promisify(fs_1.default.readFile);
 var writeFileAsync = util_1.default.promisify(fs_1.default.writeFile);
 var unlinkAsync = util_1.default.promisify(fs_1.default.unlink);
 var createPlixFileManager = function (baseDir) {
-    if (baseDir === void 0) { baseDir = path.join(__dirname, "/../", "plix"); }
+    if (baseDir === void 0) { baseDir = path.join(__dirname, "/../", "plix_files"); }
     checkExists(baseDir).then(function (v) {
         if (!v)
             mkdir(baseDir);

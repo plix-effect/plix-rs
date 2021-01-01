@@ -11,7 +11,7 @@ const writeFileAsync = util.promisify(fs.writeFile);
 const unlinkAsync = util.promisify(fs.unlink);
 
 
-export const createPlixFileManager = (baseDir: string = path.join(__dirname, "/../", "plix")) => {
+export const createPlixFileManager = (baseDir: string = path.join(__dirname, "/../", "plix_files")) => {
 
     checkExists(baseDir).then((v) => {
         if (!v) mkdir(baseDir);
