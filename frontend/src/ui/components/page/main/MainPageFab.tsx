@@ -80,10 +80,13 @@ export const MainPageFab: FC = () => {
     }
 
     const onFileSelected = async (e: ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files[0];
+        const input = e.target;
+        const file = input.files[0];
+        if (!file) return;
         const name = file.name;
         const fileData = await file.arrayBuffer();
-        sendFileCallback(name,fileData);
+        await sendFileCallback(name,fileData);
+        input.value = "";
     }
 
     return (
