@@ -1,10 +1,8 @@
 import React, {FC, useCallback, useState} from "react";
-import {Suspense, useContext} from "react";
+import {Suspense} from "react";
 import {ThemeProvider} from '@material-ui/core/styles';
 import {THEMES} from "../../theme/themes";
 import {DrawerContextProvider, DrawerContextValue} from "../../use/useDrawer";
-import {MainPage} from "../page/main/MainPage";
-import {DefaultPageAppBar} from "./DefaultAppBar";
 import {PlixDrawer} from "./PlixDrawer";
 import {UIRouter, UIView, pushStateLocationPlugin} from "@uirouter/react";
 import {routerStates} from "../../router/states";

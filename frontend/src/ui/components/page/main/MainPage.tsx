@@ -10,6 +10,8 @@ import Button from "@material-ui/core/Button";
 import {PlixPlayerView} from "../../control/player/PlixPlayerView";
 import {TrackListView} from "../../control/list/TrackListView";
 import {MainPageFab} from "./MainPageFab";
+import {DragonDropPlixArea} from "./DragonDropPlixArea";
+import {useDragonDropUploader} from "../../../use/useDragonDropUploader";
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -33,17 +35,22 @@ const useStyles = makeStyles(theme => ({
 
 export const MainPage: FC = () => {
     const classes = useStyles();
+    const [dragonDropDiv,setDragonDropDiv] = useState<HTMLDivElement>();
+    const dragonDropHighlight = useDragonDropUploader(dragonDropDiv);
 
     return (
-        <div className={classes.root}>
-            <DefaultPageAppBar title={"PLIX RS"}/>
-            <MainPageFab/>
-            <Paper  elevation={0} className={classes.paper}>
-                <div className={classes.container}>
-                    <PlixPlayerView/>
-                    <TrackListView/>
-                </div>
-            </Paper>
-        </div>
+        <>
+            <div ref={setDragonDropDiv} className={classes.root}>
+                <DefaultPageAppBar title={"PLIX RS"}/>
+                <MainPageFab/>
+                <Paper  elevation={0} className={classes.paper}>
+                    <div className={classes.container}>
+                        <PlixPlayerView/>
+                        <TrackListView/>
+                    </div>
+                </Paper>
+            </div>
+            {dragonDropHighlight}
+        </>
     )
 }
