@@ -54,10 +54,29 @@ var createRSServer = function (_a) {
     var expressWsApp = express_ws_1.default(expressApp).app;
     expressApp.use(body_parser_1.default.json());
     expressApp.use(cors_1.default());
-    expressApp.use(connect_history_api_fallback_1.default({
-        verbose: true
-    }));
-    expressApp.use(express_1.default.static(path_1.default.join(__dirname, "web")));
+    var root = path_1.default.join(__dirname, "web");
+    expressWsApp.get('/cover/*', function (req, res) {
+        return __awaiter(this, void 0, void 0, function () {
+            var fileName, coverData;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        fileName = decodeURIComponent(req.path.substr(7));
+                        return [4 /*yield*/, plixFileManager.getMp3Cover(fileName)];
+                    case 1:
+                        coverData = _a.sent();
+                        res.setHeader('content-type', 'image/png');
+                        if (!coverData) {
+                            res.sendFile(path_1.default.join(root, "assets", "image", "default_cover.jpg"));
+                            return [2 /*return*/];
+                        }
+                        res.send(coverData);
+                        return [2 /*return*/];
+                }
+            });
+        });
+    });
+    console.log("X");
     expressWsApp.ws("/api", function (ws, req) {
         var client = WSClient_1.createWSClient(ws);
         connectedClients.push(client);
@@ -219,6 +238,8 @@ var createRSServer = function (_a) {
             state: state
         });
     });
+    expressApp.use(express_1.default.static(root));
+    expressApp.use(connect_history_api_fallback_1.default({ root: root }));
     return expressWsApp;
 };
 exports.createRSServer = createRSServer;

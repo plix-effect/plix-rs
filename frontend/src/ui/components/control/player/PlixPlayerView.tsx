@@ -64,7 +64,7 @@ export const PlixPlayerView: FC = () => {
     return (
         <React.Fragment>
             <div className={classes.root}>
-                <PlayerCoverImageBackground/>
+                <PlayerCoverImageBackground trackName={currentTrackName}/>
                 <div className={classes.container}>
                     <PlayerProgressBar playing={playing} duration={state.duration} playingFromTime={playingFromTime} pauseTime={state.pauseTime}/>
                     <div className={classes.middleRow}>
@@ -76,7 +76,7 @@ export const PlixPlayerView: FC = () => {
                                     <PlayArrowIcon fontSize="large" />
                             }
                         </IconButton>
-                        <PlayerCoverImage/>
+                        <PlayerCoverImage trackName={currentTrackName}/>
                         <IconButton color={"default"} disabled={!changeStatusActionsAllowed} onClick={stop}>
                             <StopIcon fontSize="large" />
                         </IconButton>

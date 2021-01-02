@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setMp3Json = exports.readMp3Json = void 0;
+exports.readMp3CoverImage = exports.readMp3Json = void 0;
 var mp3tag_js_1 = __importDefault(require("mp3tag.js"));
 var pako_1 = require("pako");
 var OWNER_ID = "plix-effect";
@@ -24,15 +24,15 @@ function readMp3Json(buffer) {
     return null;
 }
 exports.readMp3Json = readMp3Json;
-function setMp3Json(buffer, json) {
+function readMp3CoverImage(buffer) {
+    var _a, _b;
     var mp3tag = new mp3tag_js_1.default(buffer, false);
     mp3tag.read();
-    mp3tag.tags.v2.PRIV = [{
-            ownerId: OWNER_ID + "\0",
-            data: pako_1.deflate(JSON.stringify(json)),
-        }];
-    mp3tag.save();
-    return mp3tag.buffer;
+    var apic = (_b = (_a = mp3tag.tags) === null || _a === void 0 ? void 0 : _a.v2) === null || _b === void 0 ? void 0 : _b.APIC;
+    if (!apic || apic.length == 0)
+        return null;
+    var coverData = apic[0].data;
+    return new Buffer(coverData);
 }
-exports.setMp3Json = setMp3Json;
+exports.readMp3CoverImage = readMp3CoverImage;
 //# sourceMappingURL=Mp3Meta.js.map

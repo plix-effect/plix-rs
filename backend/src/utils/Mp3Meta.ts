@@ -3,7 +3,8 @@ import {inflate, deflate} from "pako";
 
 const OWNER_ID = "plix-effect";
 
-export function readMp3Json(buffer: ArrayBuffer): object|null {
+
+export function readMp3Json(buffer: Buffer): object|null {
     const mp3tag = new MP3Tag(buffer, false);
     mp3tag.read();
     const priv: undefined|{ownerId:string, data: number[]}[] = mp3tag.tags.v2.PRIV;
@@ -17,13 +18,11 @@ export function readMp3Json(buffer: ArrayBuffer): object|null {
     return null;
 }
 
-export function setMp3Json(buffer: ArrayBuffer, json: object): ArrayBuffer {
+export function readMp3CoverImage(buffer: ArrayBuffer): Buffer|null {
     const mp3tag = new MP3Tag(buffer, false);
     mp3tag.read();
-    mp3tag.tags.v2.PRIV = [{
-        ownerId: `${OWNER_ID}\0`, // mp3tag bug. ownerId must be null-terminated
-        data: deflate(JSON.stringify(json)),
-    }];
-    mp3tag.save();
-    return mp3tag.buffer;
+    const apic = mp3tag.tags?.v2?.APIC;
+    if (!apic || apic.length == 0) return null;
+    const coverData = apic[0].data;
+    return new Buffer(coverData);
 }

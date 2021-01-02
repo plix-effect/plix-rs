@@ -2,7 +2,7 @@ import express from "express"
 import expressWs from "express-ws"
 import bodyParser from "body-parser";
 import cors from "cors";
-import history from "connect-history-api-fallback";
+import fallback from "connect-history-api-fallback";
 import path from "path";
 import WebSocket from "ws";
 import {createWSClient, IWSClient} from "./socket/WSClient";
@@ -31,12 +31,19 @@ export const createRSServer = ({plixFileManager, plixPlayer}: RSServerOptions) =
     const expressWsApp = expressWs(expressApp).app;
     expressApp.use(bodyParser.json());
     expressApp.use(cors());
+    const root = path.join(__dirname, "web");
 
-    expressApp.use(history({
-        verbose: true
-    }))
-
-    expressApp.use(express.static(path.join(__dirname, "web")));
+    expressWsApp.get('/cover/*', async function(req, res) {
+        const fileName = decodeURIComponent(req.path.substr(7));
+        const coverData = await plixFileManager.getMp3Cover(fileName);
+        res.setHeader('content-type', 'image/png');
+        if (!coverData) {
+            res.sendFile(path.join(root, "assets", "image", "default_cover.jpg"));
+            return ;
+        }
+        res.send(coverData);
+    });
+    console.log("X")
 
     expressWsApp.ws("/api", (ws, req) => {
         const client = createWSClient(ws);
@@ -162,7 +169,10 @@ export const createRSServer = ({plixFileManager, plixPlayer}: RSServerOptions) =
             _type: "playerState",
             state: state
         })
-    })
+    });
+
+    expressApp.use(express.static(root));
+    expressApp.use(fallback({root}));
 
     return expressWsApp;
 }

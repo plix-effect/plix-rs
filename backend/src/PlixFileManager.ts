@@ -1,7 +1,7 @@
 import fs from "fs";
 import util from "util";
 import * as path from "path";
-import {readMp3Json} from "./utils/Mp3Meta";
+import {readMp3CoverImage, readMp3Json} from "./utils/Mp3Meta";
 
 const readdir = util.promisify(fs.readdir);
 const checkExists = util.promisify(fs.exists);
@@ -21,7 +21,7 @@ export const createPlixFileManager = (baseDir: string = path.join(__dirname, "/.
         return readdir(baseDir);
     }
 
-    const readFileData = async (file: string): Promise<ArrayBuffer> => {
+    const readFileData = async (file: string): Promise<Buffer> => {
         const path = getFullFilePath(file);
         return readFileAsync(path);
     }
@@ -51,11 +51,20 @@ export const createPlixFileManager = (baseDir: string = path.join(__dirname, "/.
         return unlinkAsync(path);
     }
 
+    const getMp3Cover = async (fileName: string): Promise<Buffer|null> => {
+        const path = getFullFilePath(fileName);
+        const fileExists = await checkExists(path);
+        if (!fileExists) return null;
+        const data = await readFileData(fileName);
+        return readMp3CoverImage(data);
+    }
+
     return {
         getFileList,
         readJsonFromFile,
         uploadFile,
         removeFile,
+        getMp3Cover,
         getFullFilePath
     }
 }

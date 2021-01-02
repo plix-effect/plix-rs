@@ -125,11 +125,30 @@ var createPlixFileManager = function (baseDir) {
             return [2 /*return*/, unlinkAsync(path)];
         });
     }); };
+    var getMp3Cover = function (fileName) { return __awaiter(void 0, void 0, void 0, function () {
+        var path, fileExists, data;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    path = getFullFilePath(fileName);
+                    return [4 /*yield*/, checkExists(path)];
+                case 1:
+                    fileExists = _a.sent();
+                    if (!fileExists)
+                        return [2 /*return*/, null];
+                    return [4 /*yield*/, readFileData(fileName)];
+                case 2:
+                    data = _a.sent();
+                    return [2 /*return*/, Mp3Meta_1.readMp3CoverImage(data)];
+            }
+        });
+    }); };
     return {
         getFileList: getFileList,
         readJsonFromFile: readJsonFromFile,
         uploadFile: uploadFile,
         removeFile: removeFile,
+        getMp3Cover: getMp3Cover,
         getFullFilePath: getFullFilePath
     };
 };

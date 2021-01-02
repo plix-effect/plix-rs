@@ -114,6 +114,7 @@ module.exports = (env, argv) => {
                     "retry": true
                 },
                 middleware: (app, middleware, options) => {
+                    app.use(convert(proxy('/cover', { target: 'http://localhost:'+BACK_DEFAULT_PORT, secure: false, changeOrigin: true })));
                     app.use(convert(proxy('/api', { target: 'http://localhost:'+BACK_DEFAULT_PORT, secure: false, changeOrigin: true })));
                     app.use(convert(history()));
                 }

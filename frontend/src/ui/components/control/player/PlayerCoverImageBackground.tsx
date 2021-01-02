@@ -2,7 +2,7 @@ import React, {FC} from "react";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 
 interface PlayerCoverImageBackgroundProps {
-    image?: string
+    trackName: string
 }
 
 const useStyles = makeStyles(theme => ({
@@ -29,13 +29,13 @@ const useStyles = makeStyles(theme => ({
     },
 }), {classNamePrefix: "PlayerCoverImageBackground"});
 
-export const PlayerCoverImageBackground: FC<PlayerCoverImageBackgroundProps> = ({image = "/assets/image/default_cover.jpg"}) => {
+export const PlayerCoverImageBackground: FC<PlayerCoverImageBackgroundProps> = ({trackName}) => {
     const classes = useStyles();
 
 
     return (
         <div className={classes.root}>
-            <div className={classes.blurImage} style={{backgroundImage: `url(${image})`}}/>
+            <div className={classes.blurImage} style={{backgroundImage: `url("/cover/${trackName}")`}}/>
         </div>
     )
 }
