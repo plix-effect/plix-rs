@@ -38,12 +38,12 @@ export const createRSServer = ({plixFileManager, plixPlayer}: RSServerOptions) =
         const coverData = await plixFileManager.getMp3Cover(fileName);
         res.setHeader('content-type', 'image/png');
         if (!coverData) {
-            res.sendFile(path.join(root, "assets", "image", "default_cover.jpg"));
+            const defaultFileName = fileName.endsWith("json") ? "default_cover_json.png" : "default_cover.jpg"
+            res.sendFile(path.join(root, "assets", "image", defaultFileName));
             return ;
         }
         res.send(coverData);
     });
-    console.log("X")
 
     expressWsApp.ws("/api", (ws, req) => {
         const client = createWSClient(ws);

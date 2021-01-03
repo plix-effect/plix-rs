@@ -57,7 +57,7 @@ var createRSServer = function (_a) {
     var root = path_1.default.join(__dirname, "web");
     expressWsApp.get('/cover/*', function (req, res) {
         return __awaiter(this, void 0, void 0, function () {
-            var fileName, coverData;
+            var fileName, coverData, defaultFileName;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -67,7 +67,8 @@ var createRSServer = function (_a) {
                         coverData = _a.sent();
                         res.setHeader('content-type', 'image/png');
                         if (!coverData) {
-                            res.sendFile(path_1.default.join(root, "assets", "image", "default_cover.jpg"));
+                            defaultFileName = fileName.endsWith("json") ? "default_cover_json.png" : "default_cover.jpg";
+                            res.sendFile(path_1.default.join(root, "assets", "image", defaultFileName));
                             return [2 /*return*/];
                         }
                         res.send(coverData);
@@ -76,7 +77,6 @@ var createRSServer = function (_a) {
             });
         });
     });
-    console.log("X");
     expressWsApp.ws("/api", function (ws, req) {
         var client = WSClient_1.createWSClient(ws);
         connectedClients.push(client);
